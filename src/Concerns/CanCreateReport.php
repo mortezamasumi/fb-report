@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Mortezamasumi\FbReport\Actions\ReportAction;
 use Mortezamasumi\FbReport\Actions\ReportBulkAction;
-use Mortezamasumi\FbReport\Actions\ReportFormAction;
 use Mortezamasumi\FbReport\Actions\ReportHeaderAction;
 use Mortezamasumi\FbReport\Actions\ReportTableAction;
 use Mortezamasumi\FbReport\Reports\ReportColumn;
@@ -35,7 +34,7 @@ trait CanCreateReport
 
         $this->label(
             function (
-                ReportAction|ReportFormAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
+                ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
                 Component $livewire
             ): string {
                 return __('fb-report::fb-report.label', ['label' => $action->getActionLabel($livewire)]);
@@ -44,7 +43,7 @@ trait CanCreateReport
 
         $this->modalHeading(
             function (
-                ReportAction|ReportFormAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
+                ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
                 Component $livewire
             ): string {
                 return __('fb-report::fb-report.heading', ['heading' => $action->getActionHeading($livewire)]);
@@ -55,7 +54,7 @@ trait CanCreateReport
 
         $this->groupedIcon('heroicon-o-printer');
 
-        $this->form(fn (ReportAction|ReportFormAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action): array => [
+        $this->form(fn (ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action): array => [
             Fieldset::make(__('fb-report::fb-report.columns'))
                 ->columns(1)
                 ->inlineLabel()
@@ -81,7 +80,7 @@ trait CanCreateReport
 
         $this->action(
             function (
-                ReportAction|ReportFormAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
+                ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
                 array $data,
                 Component $livewire
             ) {
@@ -140,7 +139,7 @@ trait CanCreateReport
         $this->modalWidth('xl');
 
         $this->modalHidden(
-            fn (ReportAction|ReportFormAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action) => ! count($action->getReporter()::getOptionsFormComponents()) &&
+            fn (ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action) => ! count($action->getReporter()::getOptionsFormComponents()) &&
                 ! $action->hasSelectableColumns() &&
                 ! $this->hasRequiredConfirmation
         );
