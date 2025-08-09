@@ -1,0 +1,78 @@
+{
+    "name": "mortezamasumi/fb-report",
+    "description": "This is my package fb-report",
+    "keywords": [
+        "mortezamasumi",
+        "laravel",
+        "fb-report"
+    ],
+    "homepage": "https://github.com/mortezamasumi/fb-report",
+    "support": {
+        "issues": "https://github.com/mortezamasumi/fb-report/issues",
+        "source": "https://github.com/mortezamasumi/fb-report"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Morteza Masumi",
+            "email": "morteza.masumi@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "carlos-meneses/laravel-mpdf": "^2.1",
+        "filament/filament": "^4.0",
+        "mortezamasumi/fb-persian": "^4.0|dev-main",
+        "spatie/laravel-package-tools": "^1.0"
+    },
+    "require-dev": {
+        "nunomaduro/collision": "^8.0",
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-arch": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "pestphp/pest-plugin-livewire": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mortezamasumi\\FbReport\\": "src/",
+            "Mortezamasumi\\FbReport\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mortezamasumi\\FbReport\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mortezamasumi\\FbReport\\FbReportServiceProvider"
+            ],
+            "aliases": {
+                "FbReport": "Mortezamasumi\\FbReport\\Facades\\FbReport"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mortezamasumi/fb-persian"
+        }
+    ]
+}
