@@ -219,21 +219,4 @@ class ReportPage extends Page
             ->replace('-', ' ')
             ->title();
     }
-
-    public function generateReport(
-        ?Reporter $reporter = null,
-        array|Closure $reportData = [],
-        array $reportConfig = [],
-    ): void {
-        if ($reportData instanceof Closure || is_callable($reportData)) {
-            $reportData = Arr::wrap($reportData());
-        }
-        dd($this->getUrl());
-        redirect(URL::signedRoute($this->getRouteName(), [
-            'returnUrl' => $reporter->getReturnUrl(),
-        ]))
-            ->with('reporter', $reporter)
-            ->with('reportData', $reportData)
-            ->with('reportConfig', $reportConfig);
-    }
 }
