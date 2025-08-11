@@ -18,7 +18,7 @@ class ReportPage extends Page
     protected static bool $shouldRegisterNavigation = false;
     protected static ?string $slug = 'report';
     public $base64Pdf;
-    protected ?Reporter $reporter;
+    protected ?Reporter $reporter = null;
     protected array $reportData;
     protected array $reportConfig;
     protected ?string $returnUrl = null;
