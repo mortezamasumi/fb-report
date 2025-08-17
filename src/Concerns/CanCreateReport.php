@@ -2,10 +2,11 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
+use Closure;
 use Filament\Facades\Filament;
+use Filament\Forms;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
-use Filament\Forms;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -15,7 +16,6 @@ use Mortezamasumi\FbReport\Actions\ReportBulkAction;
 use Mortezamasumi\FbReport\Actions\ReportHeaderAction;
 use Mortezamasumi\FbReport\Actions\ReportTableAction;
 use Mortezamasumi\FbReport\Reports\ReportColumn;
-use Closure;
 
 trait CanCreateReport
 {
@@ -130,6 +130,7 @@ trait CanCreateReport
                     ),
                     'selectedColumns' => $selectedColumns,
                     'options' => $options,
+                    'reportPageName' => $action->getLabel(),
                 ]);
             }
         );

@@ -1,1 +1,9 @@
 @import 'tailwindcss';
+
+.show-on-small {
+    @apply md:hidden block m-auto w-[240px] text-center;
+}
+
+.show-on-wide {
+    @apply md:block hidden;
+}

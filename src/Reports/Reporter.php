@@ -6,8 +6,8 @@ use Filament\Support\Concerns\EvaluatesClosures;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\View;
 use Mortezamasumi\FbReport\Facades\FbReport;
 
 abstract class Reporter
@@ -34,6 +34,7 @@ abstract class Reporter
         protected string $returnUrl,
         protected array $selectedColumns,
         protected array $options,
+        protected mixed $reportPageName,
     ) {
         $this->setRecords($records);
 
@@ -304,5 +305,10 @@ abstract class Reporter
     public function getPageTitle(): string|Htmlable
     {
         return '';
+    }
+
+    public function getReportPageName(): ?string
+    {
+        return $this->reportPageName;
     }
 }

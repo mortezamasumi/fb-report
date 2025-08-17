@@ -2,14 +2,15 @@
 
 namespace Mortezamasumi\FbReport\Reports;
 
+use Closure;
 use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Arr;
-use Closure;
 
 class ReportPage extends Page
 {
@@ -19,22 +20,20 @@ class ReportPage extends Page
     protected static ?string $slug = 'report';
     public $base64Pdf;
     protected ?Reporter $reporter = null;
-    protected array $reportData;
-    protected array $reportConfig;
+    protected ?array $reportData;
+    protected ?array $reportConfig;
     protected ?string $returnUrl = null;
 
     public function mount(): void
     {
-        $this->reporter = Session::get('reporter');
-        Session::flash('reporter', $this->reporter);
-        $this->reportData = Session::get('reportData') ?? [];
-        Session::flash('reportData', $this->reportData);
-        $this->reportConfig = Session::get('reportConfig') ?? [];
-        Session::flash('reportConfig', $this->reportConfig);
-
         $this->returnUrl = request()->get('returnUrl');
+        $this->reporter = Cache::get(request()->get('reporter'));
+        $this->reportData = Cache::get(request()->get('reportData'));
+        $this->reportConfig = Cache::get(request()->get('reportConfig'));
 
         if (! $this->reporter) {
+            redirect($this->returnUrl);
+
             return;
         }
 
@@ -214,9 +213,6 @@ class ReportPage extends Page
 
     public function getTitle(): string|Htmlable
     {
-        return $this->reporter?->getPageTitle() ?? static::$title ?? (string) str(class_basename(static::class))
-            ->kebab()
-            ->replace('-', ' ')
-            ->title();
+        return $this->reporter?->getReportPageName();
     }
 }

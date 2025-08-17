@@ -12,19 +12,17 @@
     @endif
 
     @if ($this->reporter?->getShowHtml())
-        <iframe src="data:text/html;charset=utf-8;base64,{{ $base64Pdf }}" class="md:hidden block"
-            style="background: transparent; border: none; margin: auto; width: 240px; height:80px;">
-        </iframe>
-
-        <iframe src="data:text/html;charset=utf-8;base64,{{ $base64Pdf }}" class="md:block hidden w-full"
-            style="background: transparent; border: none; width: 100%; {{ $height }};">
-        </iframe>
+        <iframe src="data:text/html;charset=utf-8;base64,{{ $base64Pdf }}"
+            style="background: transparent; border: none; width: 100%; {{ $height }};"></iframe>
     @else
-        <iframe src="data:application/pdf;base64,{{ $base64Pdf }}" class="md:hidden block"
-            style="background: transparent; border: none; margin: auto; width: 240px; height:80px;">
-        </iframe>
+        <x-filament::button tag="a" href="data:application/pdf;base64,{{ $base64Pdf }}" download="report.pdf"
+            class="show-on-small">
 
-        <iframe src="data:application/pdf;base64,{{ $base64Pdf }}" class="md:block hidden w-full"
+            @lang('fb-report::fb-report.download')
+
+        </x-filament::button>
+
+        <iframe src="data:application/pdf;base64,{{ $base64Pdf }}" class="show-on-wide"
             style="background: transparent; border: none; width: 100%; {{ $height }};">
         </iframe>
     @endif
