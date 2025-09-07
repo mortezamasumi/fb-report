@@ -6,8 +6,8 @@ use Filament\Support\Concerns\EvaluatesClosures;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Collection;
 use Mortezamasumi\FbReport\Facades\FbReport;
 
 abstract class Reporter
@@ -50,6 +50,11 @@ abstract class Reporter
         return null;
     }
 
+    public function hasGroupItems(): bool
+    {
+        return !! $this->getGroupItems()->count() ?? false;
+    }
+
     public function getCurrentGroup(): array|collection|Model|null
     {
         return $this->currentGroup;
@@ -58,6 +63,11 @@ abstract class Reporter
     public function getSubGroupItems(): ?Collection
     {
         return null;
+    }
+
+    public function hasSubGroupItems(): bool
+    {
+        return !! $this->getSubGroupItems()->count() ?? false;
     }
 
     public function setCurrentGroup(array|collection|Model|null $item): void
@@ -88,7 +98,7 @@ abstract class Reporter
     public function getTableRows(): Collection
     {
         return $this
-            ->getRecords()
+            ->getTableRowsData()
             ->map(
                 function (array|Collection|Model $record, $index) {
                     $this->setRecord($record);
@@ -96,6 +106,11 @@ abstract class Reporter
                     return collect($this->getColumnsData($this->getRowNumber($index)));
                 }
             );
+    }
+
+    public function getTableRowsData(): Collection
+    {
+        return $this->getRecords();
     }
 
     public function getRowNumber(int|string $index): int|string

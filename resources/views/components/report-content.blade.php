@@ -1,4 +1,4 @@
-@if (!!$data['__reporter']->getGroupItems())
+@if ($data['__reporter']->hasGroupItems())
 
     @foreach ($data['__reporter']->getGroupItems() as $index => $group)
         @php
@@ -6,7 +6,7 @@
             $data['__reporter']->setCurrentGroupIndex($index);
         @endphp
 
-        @if (!!$data['__reporter']->getSubGroupItems())
+        @if ($data['__reporter']->hasSubGroupItems())
             @foreach ($data['__reporter']->getSubGroupItems() as $subIndex => $subGroup)
                 @php
                     $data['__reporter']->setCurrentSubGroup($subGroup);
