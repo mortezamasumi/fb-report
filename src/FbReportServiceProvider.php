@@ -26,7 +26,7 @@ class FbReportServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         config(['filament-shield.pages.exclude' => [
-            ...config('filament-shield.pages.exclude'),
+            ...config('filament-shield.pages.exclude') ?? [],
             ReportPage::class,
         ]]);
 
