@@ -52,7 +52,7 @@ abstract class Reporter
 
     public function hasGroupItems(): bool
     {
-        return !! $this->getGroupItems()->count() ?? false;
+        return (!! $this->getGroupItems()?->count()) ?? false;
     }
 
     public function getCurrentGroup(): array|collection|Model|null
@@ -67,7 +67,7 @@ abstract class Reporter
 
     public function hasSubGroupItems(): bool
     {
-        return !! $this->getSubGroupItems()->count() ?? false;
+        return (!! $this->getSubGroupItems()?->count()) ?? false;
     }
 
     public function setCurrentGroup(array|collection|Model|null $item): void
