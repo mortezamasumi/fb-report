@@ -23,7 +23,7 @@
         "php": "^8.3",
         "carlos-meneses/laravel-mpdf": "^2.1",
         "filament/filament": "^4.0",
-        "mortezamasumi/fb-persian": "^4.0|dev-main",
+        "mortezamasumi/fb-essentials": "^4.0|dev-main",
         "spatie/laravel-package-tools": "^1.0"
     },
     "require-dev": {

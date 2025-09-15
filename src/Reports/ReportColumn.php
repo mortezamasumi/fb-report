@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Number;
-use Mortezamasumi\FbPersian\Facades\FbPersian;
+use Mortezamasumi\FbEssentials\Facades\FbPersian;
 use Mortezamasumi\FbReport\Concerns\CanFormatState;
 use Mortezamasumi\FbReport\Concerns\HasCellState;
 
@@ -252,7 +252,7 @@ class ReportColumn extends Component
 
                 $format = $column->evaluate($format, ['record' => $record, 'state' => $state]);
                 $onlyDate = $column->evaluate($onlyDate, ['record' => $record, 'state' => $state]);
-                $format ??= ($onlyDate ? __('fb-persian::fb-persian.date_format.simple') : __('fb-persian::fb-persian.date_format.time_simple'));
+                $format ??= ($onlyDate ? __('fb-essentials::fb-essentials.date_format.simple') : __('fb-essentials::fb-essentials.date_format.time_simple'));
 
                 return FbPersian::jDateTime($format, $state, $timezone, $forceLocale);
             }

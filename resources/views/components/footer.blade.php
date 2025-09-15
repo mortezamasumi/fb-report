@@ -1,10 +1,10 @@
-@use('Mortezamasumi\FbPersian\Facades\FbPersian')
+@use('Mortezamasumi\FbEssentials\Facades\FbPersian')
 
 <table class="report-footer">
     <tr>
         <td width="50%">
             {{ __('fb-report::fb-report.footer_date', [
-                'date' => FbPersian::jDateTime(__('fb-persian::fb-persian.date_format.time_simple'), now()),
+                'date' => FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), now()),
             ]) }}
         </td>
 
