@@ -5,6 +5,7 @@ namespace Mortezamasumi\FbReport;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Livewire\Features\SupportTesting\Testable;
+use Mortezamasumi\FbEssentials\Facades\FbEssentials;
 use Mortezamasumi\FbReport\Reports\ReportPage;
 use Mortezamasumi\FbReport\Testing\TestsFbReport;
 use Spatie\LaravelPackageTools\Package;
@@ -25,10 +26,7 @@ class FbReportServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        config(['filament-shield.pages.exclude' => [
-            ...config('filament-shield.pages.exclude') ?? [],
-            ReportPage::class,
-        ]]);
+        FbEssentials::filamentShieldExcludePage(ReportPage::class);
 
         FilamentAsset::register(
             $this->getAssets(),
