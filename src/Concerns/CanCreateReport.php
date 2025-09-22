@@ -2,11 +2,17 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
-use Closure;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
-use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Pages\CreateRecord;
+use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
+use Filament\Forms;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -16,6 +22,10 @@ use Mortezamasumi\FbReport\Actions\ReportBulkAction;
 use Mortezamasumi\FbReport\Actions\ReportHeaderAction;
 use Mortezamasumi\FbReport\Actions\ReportTableAction;
 use Mortezamasumi\FbReport\Reports\ReportColumn;
+use Mortezamasumi\FbReport\Reports\Reporter;
+use Closure;
+use Exception;
+use ReflectionClass;
 
 trait CanCreateReport
 {
@@ -27,6 +37,7 @@ trait CanCreateReport
     /** @var array<string, mixed> | Closure */
     protected array|Closure $options = [];
     protected ?Closure $modifyQueryUsing = null;
+    protected $auxRecord = null;
 
     protected function setUp(): void
     {
@@ -34,7 +45,7 @@ trait CanCreateReport
 
         $this->label(
             function (
-                ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
+                ReportAction|ReportBulkAction $action,
                 Component $livewire
             ): string {
                 return __('fb-report::fb-report.label', ['label' => $action->getActionLabel($livewire)]);
@@ -43,7 +54,7 @@ trait CanCreateReport
 
         $this->modalHeading(
             function (
-                ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
+                ReportAction|ReportBulkAction $action,
                 Component $livewire
             ): string {
                 return __('fb-report::fb-report.heading', ['heading' => $action->getActionHeading($livewire)]);
@@ -54,17 +65,17 @@ trait CanCreateReport
 
         $this->groupedIcon('heroicon-o-printer');
 
-        $this->form(fn (ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action): array => [
+        $this->form(fn (ReportAction|ReportBulkAction $action): array => [
             Fieldset::make(__('fb-report::fb-report.columns'))
                 ->columns(1)
                 ->inlineLabel()
                 ->schema(fn () => array_map(
                     fn (ReportColumn $column): Flex => Flex::make([
-                        Forms\Components\Checkbox::make('isEnabled')
+                        Checkbox::make('isEnabled')
                             ->hiddenLabel()
                             ->default(fn () => $column->isEnabledByDefault())
                             ->grow(false),
-                        Forms\Components\TextInput::make('label')
+                        TextInput::make('label')
                             ->hiddenLabel()
                             ->default($column->getLabel())
                             ->readOnly(),
@@ -80,7 +91,7 @@ trait CanCreateReport
 
         $this->action(
             function (
-                ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action,
+                ReportAction|ReportBulkAction $action,
                 array $data,
                 Component $livewire
             ) {
@@ -122,7 +133,7 @@ trait CanCreateReport
                 }
 
                 $reporter = app($reporter, [
-                    'records' => $action->getActionRecords($livewire, $action),
+                    'records' => $action->getActionRecords($livewire, $action, $reporter),
                     'returnUrl' => (
                         method_exists($livewire, 'getUrl')
                             ? $livewire->getUrl()
@@ -140,58 +151,68 @@ trait CanCreateReport
         $this->modalWidth('xl');
 
         $this->modalHidden(
-            fn (ReportAction|ReportBulkAction|ReportTableAction|ReportHeaderAction $action) => ! count($action->getReporter()::getOptionsFormComponents()) &&
+            fn (ReportAction|ReportBulkAction $action) => ! count($action->getReporter()::getOptionsFormComponents()) &&
                 ! $action->hasSelectableColumns() &&
                 ! $this->hasRequiredConfirmation
         );
     }
 
-    // public function requiresConfirmation(bool|Closure $condition = true): static
-    // {
-    //     $this->modalAlignment(
-    //         fn (MountableAction $action): ?Alignment => $action->evaluate($condition)
-    //             ? Alignment::Center
-    //             : null
-    //     );
+    public function useRecord(Closure|Model|Collection|array|null $record): static
+    {
+        $this->auxRecord = $record;
 
-    //     $this->modalFooterActionsAlignment(
-    //         fn (MountableAction $action): ?Alignment => $action->evaluate($condition)
-    //             ? Alignment::Center
-    //             : null
-    //     );
+        return $this;
+    }
 
-    //     $this->modalIcon(
-    //         fn (MountableAction $action): ?string => $action->evaluate($condition)
-    //             ? (FilamentIcon::resolve('actions::modal.confirmation') ?? 'heroicon-o-exclamation-triangle')
-    //             : null
-    //     );
+    public function getAuxRecord(): mixed
+    {
+        return $this->evaluate($this->auxRecord);
+    }
 
-    //     $this->modalHeading ??= fn (MountableAction $action): string|Htmlable|null => $action->evaluate($condition)
-    //         ? $action->getLabel()
-    //         : null;
+    public function hasAuxRecord(): bool
+    {
+        return filled($this->auxRecord);
+    }
 
-    //     $this->modalDescription(
-    //         fn (MountableAction $action): ?string => $action->evaluate($condition)
-    //             ? __('filament-actions::modal.confirmation')
-    //             : null
-    //     );
+    public function getActionRecords(Component $livewire, Action $action, string $reporter): Collection
+    {
+        if ($action->canAccessSelectedRecords()) {
+            return $action->getSelectedRecords();
+        }
 
-    //     $this->modalSubmitActionLabel(
-    //         fn (MountableAction $action): ?string => $action->evaluate($condition)
-    //             ? __('filament-actions::modal.actions.confirm.label')
-    //             : null
-    //     );
+        if ($livewire instanceof ListRecords) {
+            if ($action->getRecord()) {
+                return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
+            }
 
-    //     $this->modalWidth(
-    //         fn (MountableAction $action): ?MaxWidth => $action->evaluate($condition)
-    //             ? MaxWidth::Medium
-    //             : null
-    //     );
+            $reflection = new ReflectionClass($reporter);
+            $method = $reflection->getMethod('getModel');
 
-    //     $this->hasRequiredConfirmation = $this->evaluate($condition);
+            if ($method->getDeclaringClass()->getName() === $reporter) {
+                $query = $reporter::getModel()::query();
+            } else {
+                $query = $livewire->getTableQueryForExport();
+            }
 
-    //     return $this;
-    // }
+            $query = $reporter::modifyQuery($query);
+
+            if ($this->modifyQueryUsing) {
+                $query = $this->evaluate($this->modifyQueryUsing, ['query' => $query]) ?? $query;
+            }
+
+            return $query->get();
+        }
+
+        if ($livewire instanceof EditRecord) {
+            return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
+        }
+
+        if ($this->hasAuxRecord()) {
+            return collect([$this->getAuxRecord()]);
+        }
+
+        return collect([]);
+    }
 
     public static function getDefaultName(): ?string
     {

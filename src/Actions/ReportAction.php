@@ -3,10 +3,12 @@
 namespace Mortezamasumi\FbReport\Actions;
 
 use Filament\Actions\Action;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 use Mortezamasumi\FbReport\Concerns\CanCreateReport;
+use Exception;
 
 class ReportAction extends Action
 {
@@ -30,33 +32,37 @@ class ReportAction extends Action
         return '';
     }
 
-    public function getActionRecords(Component $livewire, $action): Collection
-    {
-        $reporter = $this->getReporter();
+    // public function getActionRecords(Component $livewire, $action): Collection
+    // {
+    //     if (! $action->getRecord() && $livewire instanceof ListRecords) {
+    //         throw new Exception('Action must be instance of ReportBulkAction');
+    //     }
 
-        if ($livewire instanceof HasTable) {
-            if (! $this->hasForceUseReporterModel()) {
-                $query = $livewire->getTableQueryForExport();
-            } else {
-                $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
-            }
-        } else {
-            $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
-        }
+    //     $reporter = $this->getReporter();
 
-        if ($query) {
-            $query = $reporter::modifyQuery($query);
-            if ($this->modifyQueryUsing) {
-                $query = $this->evaluate($this->modifyQueryUsing, [
-                    'query' => $query,
-                ]) ?? $query;
-            }
+    //     if ($livewire instanceof HasTable) {
+    //         if (! $this->hasForceUseReporterModel()) {
+    //             $query = $livewire->getTableQueryForExport();
+    //         } else {
+    //             $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
+    //         }
+    //     } else {
+    //         $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
+    //     }
 
-            $records = $query->get();
-        } else {
-            $records = collect([]);
-        }
+    //     if ($query) {
+    //         $query = $reporter::modifyQuery($query);
+    //         if ($this->modifyQueryUsing) {
+    //             $query = $this->evaluate($this->modifyQueryUsing, [
+    //                 'query' => $query,
+    //             ]) ?? $query;
+    //         }
 
-        return $records;
-    }
+    //         $records = $query->get();
+    //     } else {
+    //         $records = collect([]);
+    //     }
+
+    //     return $records;
+    // }
 }

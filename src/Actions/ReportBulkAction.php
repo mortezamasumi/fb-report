@@ -22,33 +22,35 @@ class ReportBulkAction extends BulkAction
         return $this->getPluralModelLabel();
     }
 
-    public function getActionRecords(Component $livewire, $action): Collection
-    {
-        $reporter = $this->getReporter();
+    // public function getActionRecords(Component $livewire, $action): Collection
+    // {
+    //     return $action->getSelectedRecords();
 
-        if ($livewire instanceof HasTable) {
-            if (! $this->hasForceUseReporterModel()) {
-                $query = $livewire->getTableQueryForExport();
-            } else {
-                $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
-            }
-        } else {
-            $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
-        }
+    // $reporter = $this->getReporter();
 
-        if ($query) {
-            $query = $reporter::modifyQuery($query);
-            if ($this->modifyQueryUsing) {
-                $query = $this->evaluate($this->modifyQueryUsing, [
-                    'query' => $query,
-                ]) ?? $query;
-            }
+    // if ($livewire instanceof HasTable) {
+    //     if (! $this->hasForceUseReporterModel()) {
+    //         $query = $livewire->getTableQueryForExport();
+    //     } else {
+    //         $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
+    //     }
+    // } else {
+    //     $query = class_exists($reporter::getModel()) ? $reporter::getModel()::query() : null;
+    // }
 
-            $records = $action->getSelectedRecords();
-        } else {
-            $records = collect([]);
-        }
+    // if ($query) {
+    //     $query = $reporter::modifyQuery($query);
+    //     if ($this->modifyQueryUsing) {
+    //         $query = $this->evaluate($this->modifyQueryUsing, [
+    //             'query' => $query,
+    //         ]) ?? $query;
+    //     }
 
-        return $records;
-    }
+    //     $records = $action->getSelectedRecords();
+    // } else {
+    //     $records = collect([]);
+    // }
+
+    // return $records;
+    // }
 }

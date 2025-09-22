@@ -2,13 +2,13 @@
 
 namespace Mortezamasumi\FbReport;
 
-use Closure;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Mortezamasumi\FbReport\Reports\Reporter;
 use Mortezamasumi\FbReport\Reports\ReportPage;
+use Closure;
 
 class FbReport
 {
@@ -21,16 +21,9 @@ class FbReport
             $reportData = Arr::wrap($reportData());
         }
 
-        $validity = now()->addSeconds(60);
-
-        $reporterKey = Str::random(64);
-        Cache::put($reporterKey, $reporter, $validity);
-
-        $reportDataKey = Str::random(64);
-        Cache::put($reportDataKey, $reportData, $validity);
-
-        $reportConfigKey = Str::random(64);
-        Cache::put($reportConfigKey, $reportConfig, $validity);
+        Cache::put($reporterKey = Str::random(64), $reporter, now()->addSeconds(60));
+        Cache::put($reportDataKey = Str::random(64), $reportData, now()->addSeconds(60));
+        Cache::put($reportConfigKey = Str::random(64), $reportConfig, now()->addSeconds(60));
 
         redirect(URL::signedRoute(ReportPage::getRouteName(), [
             'returnUrl' => $reporter->getReturnUrl(),
