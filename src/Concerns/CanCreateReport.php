@@ -2,16 +2,15 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
+use Closure;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Flex;
-use Filament\Forms;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -19,12 +18,8 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Mortezamasumi\FbReport\Actions\ReportAction;
 use Mortezamasumi\FbReport\Actions\ReportBulkAction;
-use Mortezamasumi\FbReport\Actions\ReportHeaderAction;
-use Mortezamasumi\FbReport\Actions\ReportTableAction;
 use Mortezamasumi\FbReport\Reports\ReportColumn;
 use Mortezamasumi\FbReport\Reports\Reporter;
-use Closure;
-use Exception;
 use ReflectionClass;
 
 trait CanCreateReport
@@ -37,7 +32,8 @@ trait CanCreateReport
     /** @var array<string, mixed> | Closure */
     protected array|Closure $options = [];
     protected ?Closure $modifyQueryUsing = null;
-    protected $auxRecord = null;
+    protected Closure|string|null $auxModel = null;
+    protected Closure|Model|Collection|array|null $auxRecord = null;
 
     protected function setUp(): void
     {
@@ -137,7 +133,7 @@ trait CanCreateReport
                     'returnUrl' => (
                         method_exists($livewire, 'getUrl')
                             ? $livewire->getUrl()
-                            : Filament::getCurrentPanel()->getUrl()
+                            : Filament::getUrl()
                     ),
                     'selectedColumns' => $selectedColumns,
                     'options' => $options,
@@ -164,7 +160,7 @@ trait CanCreateReport
         return $this;
     }
 
-    public function getAuxRecord(): mixed
+    public function getAuxRecord(): Model|Collection|array|null
     {
         return $this->evaluate($this->auxRecord);
     }
@@ -174,10 +170,39 @@ trait CanCreateReport
         return filled($this->auxRecord);
     }
 
+    public function useModel(Closure|string|null $model): static
+    {
+        $this->auxModel = $model;
+
+        return $this;
+    }
+
+    public function getAuxModel(): string
+    {
+        return $this->evaluate($this->auxModel);
+    }
+
+    public function hasAuxModel(): bool
+    {
+        return filled($this->auxModel);
+    }
+
     public function getActionRecords(Component $livewire, Action $action, string $reporter): Collection
     {
         if ($action->canAccessSelectedRecords()) {
             return $action->getSelectedRecords();
+        }
+
+        if ($this->hasAuxModel()) {
+            $query = $this->getAuxModel()::query();
+
+            $query = $reporter::modifyQuery($query);
+
+            if ($this->modifyQueryUsing) {
+                $query = $this->evaluate($this->modifyQueryUsing, ['query' => $query]) ?? $query;
+            }
+
+            return $query->get();
         }
 
         if ($livewire instanceof ListRecords) {
@@ -205,6 +230,18 @@ trait CanCreateReport
 
         if ($livewire instanceof EditRecord) {
             return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
+        }
+
+        if ($reporter::getModel()) {
+            $query = $reporter::getModel()::query();
+
+            $query = $reporter::modifyQuery($query);
+
+            if ($this->modifyQueryUsing) {
+                $query = $this->evaluate($this->modifyQueryUsing, ['query' => $query]) ?? $query;
+            }
+
+            return $query->get();
         }
 
         if ($this->hasAuxRecord()) {

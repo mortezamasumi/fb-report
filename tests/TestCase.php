@@ -2,77 +2,113 @@
 
 namespace Mortezamasumi\FbReport\Tests;
 
-use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
-use BladeUI\Icons\BladeIconsServiceProvider;
-use Filament\Actions\ActionsServiceProvider;
-use Filament\Forms\FormsServiceProvider;
-use Filament\Infolists\InfolistsServiceProvider;
-use Filament\Notifications\NotificationsServiceProvider;
-use Filament\Support\SupportServiceProvider;
-use Filament\Tables\TablesServiceProvider;
-use Filament\Widgets\WidgetsServiceProvider;
-use Filament\FilamentServiceProvider;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Livewire\LivewireServiceProvider;
-use Mortezamasumi\FbReport\Tests\Services\FbReportPanelProvider;
+use Filament\Facades\Filament;
+use Filament\Panel;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
+use Mccarlosen\LaravelMpdf\LaravelMpdfServiceProvider;
+use Mortezamasumi\FbEssentials\FbEssentialsServiceProvider;
+use Mortezamasumi\FbReport\FbReportPlugin;
 use Mortezamasumi\FbReport\FbReportServiceProvider;
-use Orchestra\Testbench\TestCase as Orchestra;
-use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
+use Mortezamasumi\FbReport\Tests\Services\PostResource;
+use Mortezamasumi\FbReport\Tests\Services\PostsReport;
+use Orchestra\Testbench\TestCase as TestbenchTestCase;
 
-use function Orchestra\Testbench\default_migration_path;
-
-class TestCase extends Orchestra
+class TestCase extends TestbenchTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Factory::guessFactoryNamesUsing(
-        //     fn (string $modelName) => 'Mortezamasumi\\FbReport\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        // );
-    }
+    use RefreshDatabase;
 
     protected function defineEnvironment($app)
     {
-        // config()->set('app.key', 'base64:Hupx3yAySikrM2/edkZQNQHslgDWYfiBfCuSThJ5SK8=');
-        // config()->set('database.default', 'testing');
-        // config()->set('queue.batching.database', 'testing');
-        // config()->set('auth.providers.users.model', '\Tests\Models\User');
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->timestamps();
+        });
 
-        /*
-         * $migration = include __DIR__.'/../database/migrations/create_page-test_table.php.stub';
-         * $migration->up();
-         */
-        // View::addLocation(__DIR__.'/resources/views');
-        // View::addLocation(__DIR__.'/../resources/views');
-    }
+        Schema::create('jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('queue')->index();
+            $table->longText('payload');
+            $table->unsignedTinyInteger('attempts');
+            $table->unsignedInteger('reserved_at')->nullable();
+            $table->unsignedInteger('available_at');
+            $table->unsignedInteger('created_at');
+        });
 
-    protected function defineDatabaseMigrations()
-    {
-        /** @var Orchestra $this */
-        $this->loadMigrationsFrom(default_migration_path());
-        $this->loadMigrationsFrom(default_migration_path().'/notifications');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+        Schema::create('job_batches', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->string('name');
+            $table->integer('total_jobs');
+            $table->integer('pending_jobs');
+            $table->integer('failed_jobs');
+            $table->longText('failed_job_ids');
+            $table->mediumText('options')->nullable();
+            $table->integer('cancelled_at')->nullable();
+            $table->integer('created_at');
+            $table->integer('finished_at')->nullable();
+        });
+
+        Schema::create('failed_jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid')->unique();
+            $table->text('connection');
+            $table->text('queue');
+            $table->longText('payload');
+            $table->longText('exception');
+            $table->timestamp('failed_at')->useCurrent();
+        });
+
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->string('title1');
+            $table->string('title2');
+            $table->datetime('date1');
+            $table->datetime('date2');
+            $table->timestamps();
+        });
+
+        Filament::registerPanel(
+            Panel::make()
+                ->id('admin')
+                ->path('/')
+                ->login()
+                ->default()
+                ->pages([
+                    PostsReport::class,
+                ])
+                ->resources([
+                    PostResource::class,
+                ])
+                ->plugins([
+                    FbReportPlugin::make(),
+                ])
+        );
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            ActionsServiceProvider::class,
-            BladeCaptureDirectiveServiceProvider::class,
-            BladeHeroiconsServiceProvider::class,
-            BladeIconsServiceProvider::class,
-            FilamentServiceProvider::class,
-            FormsServiceProvider::class,
-            InfolistsServiceProvider::class,
-            LivewireServiceProvider::class,
-            NotificationsServiceProvider::class,
-            SupportServiceProvider::class,
-            TablesServiceProvider::class,
-            WidgetsServiceProvider::class,
+            \BladeUI\Heroicons\BladeHeroiconsServiceProvider::class,
+            \BladeUI\Icons\BladeIconsServiceProvider::class,
+            \Filament\FilamentServiceProvider::class,
+            \Filament\Actions\ActionsServiceProvider::class,
+            \Filament\Forms\FormsServiceProvider::class,
+            \Filament\Infolists\InfolistsServiceProvider::class,
+            \Filament\Notifications\NotificationsServiceProvider::class,
+            \Filament\Schemas\SchemasServiceProvider::class,
+            \Filament\Support\SupportServiceProvider::class,
+            \Filament\Tables\TablesServiceProvider::class,
+            \Filament\Widgets\WidgetsServiceProvider::class,
+            \Livewire\LivewireServiceProvider::class,
+            \RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider::class,
+            \Orchestra\Workbench\WorkbenchServiceProvider::class,
+            LaravelMpdfServiceProvider::class,
+            FbEssentialsServiceProvider::class,
             FbReportServiceProvider::class,
-            // FbReportPanelProvider::class,
         ];
     }
 }

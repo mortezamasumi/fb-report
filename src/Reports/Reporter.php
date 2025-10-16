@@ -174,6 +174,11 @@ abstract class Reporter
         return [];
     }
 
+    public function setModel(?string $model): void
+    {
+        static::$model = $model;
+    }
+
     public static function getModel(): string
     {
         return static::$model ?? (string) str(class_basename(static::class))

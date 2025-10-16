@@ -6,6 +6,7 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Livewire\Features\SupportTesting\Testable;
 use Mortezamasumi\FbEssentials\Facades\FbEssentials;
+use Mortezamasumi\FbReport\Macros\ReportMacroServiceProvider;
 use Mortezamasumi\FbReport\Reports\ReportPage;
 use Mortezamasumi\FbReport\Testing\TestsFbReport;
 use Spatie\LaravelPackageTools\Package;
@@ -22,6 +23,11 @@ class FbReportServiceProvider extends PackageServiceProvider
             ->name(static::$name)
             ->hasTranslations()
             ->hasViews(static::$viewNamespace);
+    }
+
+    public function packageRegistered(): void
+    {
+        $this->app->register(ReportMacroServiceProvider::class);
     }
 
     public function packageBooted(): void
