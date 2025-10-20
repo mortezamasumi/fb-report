@@ -194,6 +194,7 @@ trait CanCreateReport
         }
 
         if ($this->hasAuxRecord()) {
+            // test
             return collect([$this->getAuxRecord()]);
         }
 
