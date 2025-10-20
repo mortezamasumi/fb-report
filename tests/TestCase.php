@@ -9,10 +9,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Mccarlosen\LaravelMpdf\LaravelMpdfServiceProvider;
 use Mortezamasumi\FbEssentials\FbEssentialsServiceProvider;
-use Mortezamasumi\FbReport\FbReportPlugin;
-use Mortezamasumi\FbReport\FbReportServiceProvider;
+use Mortezamasumi\FbReport\Tests\Services\PostReport;
 use Mortezamasumi\FbReport\Tests\Services\PostResource;
 use Mortezamasumi\FbReport\Tests\Services\PostsReport;
+use Mortezamasumi\FbReport\FbReportPlugin;
+use Mortezamasumi\FbReport\FbReportServiceProvider;
 use Orchestra\Testbench\TestCase as TestbenchTestCase;
 
 class TestCase extends TestbenchTestCase
@@ -78,6 +79,7 @@ class TestCase extends TestbenchTestCase
                 ->login()
                 ->default()
                 ->pages([
+                    PostReport::class,
                     PostsReport::class,
                 ])
                 ->resources([

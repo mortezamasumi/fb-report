@@ -2,7 +2,6 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
-use Closure;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Checkbox;
@@ -20,6 +19,7 @@ use Mortezamasumi\FbReport\Actions\ReportAction;
 use Mortezamasumi\FbReport\Actions\ReportBulkAction;
 use Mortezamasumi\FbReport\Reports\ReportColumn;
 use Mortezamasumi\FbReport\Reports\Reporter;
+use Closure;
 use ReflectionClass;
 
 trait CanCreateReport
@@ -193,6 +193,10 @@ trait CanCreateReport
             return $action->getSelectedRecords();
         }
 
+        if ($this->hasAuxRecord()) {
+            return collect([$this->getAuxRecord()]);
+        }
+
         if ($this->hasAuxModel()) {
             $query = $this->getAuxModel()::query();
 
@@ -242,10 +246,6 @@ trait CanCreateReport
             }
 
             return $query->get();
-        }
-
-        if ($this->hasAuxRecord()) {
-            return collect([$this->getAuxRecord()]);
         }
 
         return collect([]);
