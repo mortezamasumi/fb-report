@@ -6,8 +6,8 @@ use Filament\Support\Concerns\EvaluatesClosures;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Collection;
 use Mortezamasumi\FbReport\Facades\FbReport;
 
 abstract class Reporter
@@ -97,6 +97,10 @@ abstract class Reporter
 
     public function getTableRows(): Collection
     {
+        if (! $this->getTableRowsData()) {
+            return collect([]);
+        }
+
         return $this
             ->getTableRowsData()
             ->map(

@@ -9,9 +9,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Mccarlosen\LaravelMpdf\LaravelMpdfServiceProvider;
 use Mortezamasumi\FbEssentials\FbEssentialsServiceProvider;
-use Mortezamasumi\FbReport\Tests\Services\PostReport;
+use Mortezamasumi\FbReport\Tests\Services\Category;
+use Mortezamasumi\FbReport\Tests\Services\Group;
 use Mortezamasumi\FbReport\Tests\Services\PostResource;
-use Mortezamasumi\FbReport\Tests\Services\PostsReport;
+use Mortezamasumi\FbReport\Tests\Services\ReportPage;
 use Mortezamasumi\FbReport\FbReportPlugin;
 use Mortezamasumi\FbReport\FbReportServiceProvider;
 use Orchestra\Testbench\TestCase as TestbenchTestCase;
@@ -63,12 +64,23 @@ class TestCase extends TestbenchTestCase
             $table->timestamp('failed_at')->useCurrent();
         });
 
+        Schema::create('groups', function (Blueprint $table) {
+            $table->id();
+            $table->json('title');
+            $table->timestamps();
+        });
+
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+            $table->json('title');
+            $table->foreignIdFor(Group::class);
+            $table->timestamps();
+        });
+
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->string('title1');
-            $table->string('title2');
-            $table->datetime('date1');
-            $table->datetime('date2');
+            $table->string('title');
+            $table->foreignIdFor(Category::class);
             $table->timestamps();
         });
 
@@ -79,8 +91,7 @@ class TestCase extends TestbenchTestCase
                 ->login()
                 ->default()
                 ->pages([
-                    PostReport::class,
-                    PostsReport::class,
+                    ReportPage::class,
                 ])
                 ->resources([
                     PostResource::class,

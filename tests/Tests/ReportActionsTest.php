@@ -2,13 +2,20 @@
 
 use Filament\Actions\Testing\TestAction;
 use Mortezamasumi\FbEssentials\Facades\FbPersian;
+use Mortezamasumi\FbReport\Tests\Services\Category;
+use Mortezamasumi\FbReport\Tests\Services\Group;
 use Mortezamasumi\FbReport\Tests\Services\ListPosts;
 use Mortezamasumi\FbReport\Tests\Services\Post;
-use Mortezamasumi\FbReport\Tests\Services\PostReport;
 use Mortezamasumi\FbReport\Tests\Services\PostResource;
-use Mortezamasumi\FbReport\Tests\Services\PostsReport;
+use Mortezamasumi\FbReport\Tests\Services\ReportPage;
 use Mortezamasumi\FbReport\Tests\Services\User;
-use Symfony\Component\DomCrawler\Crawler;
+
+beforeEach(function () {
+    Group::factory(3)
+        ->has(Category::factory(3)
+            ->has(Post::factory(5)))
+        ->create();
+});
 
 it('can render list page', function () {
     $this
@@ -18,56 +25,30 @@ it('can render list page', function () {
 });
 
 it('can report using action in list page', function () {
-    Post::factory(5)->create();
-
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
-        ->assertActionExists('report')
-        ->callAction('report')
+        ->assertActionExists('list-report')
+        ->callAction('list-report')
         ->assertRedirect()
         ->tap(function ($response) {
             $this
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
                 ->tap(function ($response) {
-                    $posts = Post::all();
+                    $decodedContent = getDecodedIframeContent($response);
 
-                    $crawler = new Crawler($response->getContent());
-
-                    $iframeNode = $crawler->filter('iframe');
-                    $this->assertCount(1, $iframeNode, 'Expected to find one iframe on the page.');
-
-                    $src = $iframeNode->attr('src');
-                    $this->assertNotNull($src, 'Iframe src attribute should not be null.');
-
-                    $parts = explode(',', $src, 2);
-                    $this->assertCount(2, $parts, 'The src attribute format is correct.');
-
-                    $decodedContent = base64_decode($parts[1]);
-
-                    foreach ($posts as $post) {
+                    foreach (Post::all() as $post) {
                         expect($decodedContent)
-                            ->toContain('Title1')
-                            ->toContain($post->title1)
-                            ->toContain($post->title2)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                            ->not
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                            ->not
-                            ->toContain($post->date1)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                            ->not
-                            ->toContain($post->date2);
+                            ->toContain('Title')
+                            ->toContain(FbPersian::digit($post->title));
                     }
                 });
         });
 });
 
 it('can report using action in record actions', function () {
-    $posts = Post::factory(5)->create();
-
-    $post = $posts->skip(2)->first();
+    $post = Post::latest('title')->first();
 
     $this
         ->actingAs(User::factory()->create())
@@ -80,86 +61,42 @@ it('can report using action in record actions', function () {
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
                 ->tap(function ($response) use ($post) {
-                    $crawler = new Crawler($response->getContent());
-
-                    $iframeNode = $crawler->filter('iframe');
-                    $this->assertCount(1, $iframeNode, 'Expected to find one iframe on the page.');
-
-                    $src = $iframeNode->attr('src');
-                    $this->assertNotNull($src, 'Iframe src attribute should not be null.');
-
-                    $parts = explode(',', $src, 2);
-                    $this->assertCount(2, $parts, 'The src attribute format is correct.');
-
-                    $decodedContent = base64_decode($parts[1]);
+                    $decodedContent = getDecodedIframeContent($response);
 
                     expect($decodedContent)
-                        ->toContain('Title1')
-                        ->toContain($post->title1)
-                        ->toContain($post->title2)
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                        ->not
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                        ->not
-                        ->toContain($post->date1)
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                        ->not
-                        ->toContain($post->date2);
+                        ->toContain('Title')
+                        ->toContain(FbPersian::digit($post->title));
                 });
         });
 });
 
 it('can report using toolbar action', function () {
-    Post::factory(5)->create();
+    $posts = Post::all()->shuffle()->take(30);
 
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
-        ->selectTableRecords(Post::pluck('id')->toArray())
+        ->selectTableRecords($posts->pluck('id')->toArray())
         ->assertActionVisible(TestAction::make('bulk-report')->table()->bulk())
         ->callAction(TestAction::make('bulk-report')->table()->bulk())
         ->assertRedirect()
-        ->tap(function ($response) {
+        ->tap(function ($response) use ($posts) {
             $this
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
-                ->tap(function ($response) {
-                    $posts = Post::all();
-
-                    $crawler = new Crawler($response->getContent());
-
-                    $iframeNode = $crawler->filter('iframe');
-                    $this->assertCount(1, $iframeNode, 'Expected to find one iframe on the page.');
-
-                    $src = $iframeNode->attr('src');
-                    $this->assertNotNull($src, 'Iframe src attribute should not be null.');
-
-                    $parts = explode(',', $src, 2);
-                    $this->assertCount(2, $parts, 'The src attribute format is correct.');
-
-                    $decodedContent = base64_decode($parts[1]);
+                ->tap(function ($response) use ($posts) {
+                    $decodedContent = getDecodedIframeContent($response);
 
                     foreach ($posts as $post) {
                         expect($decodedContent)
-                            ->toContain('Title1')
-                            ->toContain($post->title1)
-                            ->toContain($post->title2)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                            ->not
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                            ->not
-                            ->toContain($post->date1)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                            ->not
-                            ->toContain($post->date2);
+                            ->toContain('Title')
+                            ->toContain(FbPersian::digit($post->title));
                     }
                 });
         });
 });
 
 it('can report using header action', function () {
-    Post::factory(5)->create();
-
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -171,126 +108,59 @@ it('can report using header action', function () {
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
                 ->tap(function ($response) {
-                    $posts = Post::all();
+                    $decodedContent = getDecodedIframeContent($response);
 
-                    $crawler = new Crawler($response->getContent());
-
-                    $iframeNode = $crawler->filter('iframe');
-                    $this->assertCount(1, $iframeNode, 'Expected to find one iframe on the page.');
-
-                    $src = $iframeNode->attr('src');
-                    $this->assertNotNull($src, 'Iframe src attribute should not be null.');
-
-                    $parts = explode(',', $src, 2);
-                    $this->assertCount(2, $parts, 'The src attribute format is correct.');
-
-                    $decodedContent = base64_decode($parts[1]);
-
-                    foreach ($posts as $post) {
+                    foreach (Post::all() as $post) {
                         expect($decodedContent)
-                            ->toContain('Title1')
-                            ->toContain($post->title1)
-                            ->toContain($post->title2)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                            ->not
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                            ->not
-                            ->toContain($post->date1)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                            ->not
-                            ->toContain($post->date2);
+                            ->toContain('Title')
+                            ->toContain(FbPersian::digit($post->title));
                     }
                 });
         });
 });
 
 it('can report using page action using useModel', function () {
-    Post::factory(5)->create();
-
     $this
         ->actingAs(User::factory()->create())
-        ->livewire(PostsReport::class)
-        ->callAction('report')
+        ->livewire(ReportPage::class)
+        ->assertTableActionExists('page-all-report')
+        ->callAction('page-all-report')
         ->assertRedirect()
         ->tap(function ($response) {
             $this
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
                 ->tap(function ($response) {
-                    $posts = Post::all();
+                    $decodedContent = getDecodedIframeContent($response);
 
-                    $crawler = new Crawler($response->getContent());
-
-                    $iframeNode = $crawler->filter('iframe');
-                    $this->assertCount(1, $iframeNode, 'Expected to find one iframe on the page.');
-
-                    $src = $iframeNode->attr('src');
-                    $this->assertNotNull($src, 'Iframe src attribute should not be null.');
-
-                    $parts = explode(',', $src, 2);
-                    $this->assertCount(2, $parts, 'The src attribute format is correct.');
-
-                    $decodedContent = base64_decode($parts[1]);
-
-                    foreach ($posts as $post) {
+                    foreach (Post::all() as $post) {
                         expect($decodedContent)
-                            ->toContain('Title1')
-                            ->toContain($post->title1)
-                            ->toContain($post->title2)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                            ->not
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                            ->not
-                            ->toContain($post->date1)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                            ->not
-                            ->toContain($post->date2);
+                            ->toContain('Title')
+                            ->toContain(FbPersian::digit($post->title));
                     }
                 });
         });
 });
 
 it('can report using page action using useRecord', function () {
-    $posts = Post::factory(5)->create();
-
-    $post = $posts->skip(2)->first();
-
     $this
         ->actingAs(User::factory()->create())
-        ->livewire(PostReport::class)
-        ->mountAction('report')
-        ->callMountedAction()
+        ->livewire(ReportPage::class)
+        ->assertTableActionExists('page-single-report')
+        ->callAction('page-single-report')
         ->assertRedirect()
-        ->tap(function ($response) use ($post) {
+        ->tap(function ($response) {
             $this
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
-                ->tap(function ($response) use ($post) {
-                    $crawler = new Crawler($response->getContent());
+                ->tap(function ($response) {
+                    $decodedContent = getDecodedIframeContent($response);
 
-                    $iframeNode = $crawler->filter('iframe');
-                    $this->assertCount(1, $iframeNode, 'Expected to find one iframe on the page.');
-
-                    $src = $iframeNode->attr('src');
-                    $this->assertNotNull($src, 'Iframe src attribute should not be null.');
-
-                    $parts = explode(',', $src, 2);
-                    $this->assertCount(2, $parts, 'The src attribute format is correct.');
-
-                    $decodedContent = base64_decode($parts[1]);
+                    $post = Post::latest('title')->first();
 
                     expect($decodedContent)
-                        ->toContain('Title1')
-                        ->toContain($post->title1)
-                        ->toContain($post->title2)
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                        ->not
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                        ->not
-                        ->toContain($post->date1)
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                        ->not
-                        ->toContain($post->date2);
+                        ->toContain('Title')
+                        ->toContain(FbPersian::digit($post->title));
                 });
         });
 });

@@ -16,22 +16,19 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('title1'),
+                TextColumn::make('title'),
             ])
             ->recordActions([
                 ReportAction::make('record-report')
                     ->reporter(PostReporter::class)
-                    ->selectableColumns(false)
             ])
             ->toolbarActions([
                 ReportBulkAction::make('bulk-report')
                     ->reporter(PostReporter::class)
-                    ->selectableColumns(false)
             ])
             ->headerActions([
                 ReportAction::make('header-report')
                     ->reporter(PostReporter::class)
-                    ->selectableColumns(false)
             ]);
     }
 

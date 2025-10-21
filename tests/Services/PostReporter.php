@@ -4,23 +4,23 @@ namespace Mortezamasumi\FbReport\Tests\Services;
 
 use Mortezamasumi\FbReport\Reports\ReportColumn;
 use Mortezamasumi\FbReport\Reports\Reporter;
+use Closure;
 
 class PostReporter extends Reporter
 {
     protected bool $showHtml = true;
+    protected bool|Closure $hasSelectableColumns = false;
 
     public static function getColumns(): array
     {
         return [
             ReportColumn::make('__row__')
-                ->localeDigit()
-                ->span(1),
-            ReportColumn::make('title1')
+                ->span(1),  // to test span
+            ReportColumn::make('title')
                 ->localeDigit(),
-            ReportColumn::make('title2'),
-            ReportColumn::make('date1')
+            ReportColumn::make('created_at')
                 ->jDate(),
-            ReportColumn::make('date2')
+            ReportColumn::make('updated_at')
                 ->jDateTime(),
         ];
     }

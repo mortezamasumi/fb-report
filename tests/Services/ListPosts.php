@@ -12,9 +12,8 @@ class ListPosts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            ReportAction::make('report')
-                ->reporter(PostReporter::class)
-                ->selectableColumns(false),
+            ReportAction::make('list-report')
+                ->reporter(PostReporter::class),
         ];
     }
 }

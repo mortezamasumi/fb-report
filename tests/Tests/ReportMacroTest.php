@@ -2,50 +2,52 @@
 
 use Illuminate\Support\Facades\App;
 use Mortezamasumi\FbEssentials\Facades\FbPersian;
+use Mortezamasumi\FbReport\Tests\Services\Category;
+use Mortezamasumi\FbReport\Tests\Services\Group;
 use Mortezamasumi\FbReport\Tests\Services\Post;
-use Mortezamasumi\FbReport\Tests\Services\PostsReport;
+use Mortezamasumi\FbReport\Tests\Services\ReportPage;
 use Mortezamasumi\FbReport\Tests\Services\User;
 use Symfony\Component\DomCrawler\Crawler;
 
 it('can render report page', function () {
     $this
-        ->livewire(PostsReport::class)
+        ->livewire(ReportPage::class)
         ->assertSuccessful();
 });
 
 it('can see report action', function () {
     $this
-        ->livewire(PostsReport::class)
-        ->assertActionExists('report');
+        ->livewire(ReportPage::class)
+        ->assertActionExists('page-all-report')
+        ->assertActionExists('page-single-report');
 });
 
 it('can call report action', function () {
     $this
         ->actingAs(User::factory()->create())
-        ->livewire(PostsReport::class)
-        ->mountAction('report')
-        ->callMountedAction()
+        ->livewire(ReportPage::class)
+        ->callAction('page-all-report')
         ->assertHasNoActionErrors();
 });
 
 it('can make posts report and verify content using macros', function () {
     App::setLocale('fa');
 
-    Post::factory()->create();
+    Group::factory(1)
+        ->has(Category::factory(1)
+            ->has(Post::factory(1)))
+        ->create();
 
     $this
         ->actingAs(User::factory()->create())
-        ->livewire(PostsReport::class)
-        ->mountAction('report')
-        ->callMountedAction()
+        ->livewire(ReportPage::class)
+        ->callAction('page-all-report')
         ->assertRedirect()
         ->tap(function ($response) {
             $this
                 ->get($response->effects['redirect'])
                 ->assertSuccessful()
                 ->tap(function ($response) {
-                    $post = Post::first();
-
                     $crawler = new Crawler($response->getContent());
 
                     $iframeNode = $crawler->filter('iframe');
@@ -60,20 +62,19 @@ it('can make posts report and verify content using macros', function () {
                     $base64Part = $parts[1];
                     $decodedContent = base64_decode($base64Part);
 
-                    expect($decodedContent)
-                        ->toContain('Title1')
-                        ->toContain(FbPersian::digit($post->title1))
-                        ->not
-                        ->toContain($post->title1)
-                        ->toContain($post->title2)
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->date1))
-                        ->not
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date1))
-                        ->not
-                        ->toContain($post->date1)
-                        ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->date2))
-                        ->not
-                        ->toContain($post->date2);
+                    foreach (Post::all() as $post) {
+                        expect($decodedContent)
+                            ->toContain('Title')
+                            ->toContain(FbPersian::digit($post->title))
+                            ->not
+                            ->toContain($post->title)
+                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->created_at))
+                            ->not
+                            ->toContain($post->created_at->format(__('fb-essentials::fb-essentials.date_format.simple')))
+                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->created_at))
+                            ->not
+                            ->toContain($post->created_at->format(__('fb-essentials::fb-essentials.date_format.time_simple')));
+                    }
                 });
         });
 });

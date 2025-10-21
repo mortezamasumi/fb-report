@@ -2,6 +2,9 @@
     $titles = $data['__reporter']->getColumnsTitle();
 
     $rows = $data['__reporter']->getTableRows();
+
+    // dd($rows);
+
 @endphp
 
 {!! $data['__reporter']->getBeforeHtml($data) !!}

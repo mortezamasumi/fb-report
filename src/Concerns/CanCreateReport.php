@@ -194,7 +194,6 @@ trait CanCreateReport
         }
 
         if ($this->hasAuxRecord()) {
-            // test
             return collect([$this->getAuxRecord()]);
         }
 
@@ -212,7 +211,8 @@ trait CanCreateReport
 
         if ($livewire instanceof ListRecords) {
             if ($action->getRecord()) {
-                return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
+                return collect([$action->getRecord()]);
+                // return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
             }
 
             $reflection = new ReflectionClass($reporter);
@@ -234,7 +234,8 @@ trait CanCreateReport
         }
 
         if ($livewire instanceof EditRecord) {
-            return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
+            return collect([$action->getRecord()]);
+            // return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
         }
 
         if ($reporter::getModel()) {
