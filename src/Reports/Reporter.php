@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Collection;
 use Mortezamasumi\FbReport\Facades\FbReport;
+use Closure;
 
 abstract class Reporter
 {
@@ -25,6 +26,7 @@ abstract class Reporter
     protected int|string|null $currentGroupIndex = null;
     protected array|collection|Model|null $currentSubGroup = null;
     protected int|string|null $currentSubGroupIndex = null;
+    public static bool $selectableColumns = true;
 
     /**
      * @param  array<string, mixed>  $options

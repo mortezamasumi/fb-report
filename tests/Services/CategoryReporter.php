@@ -11,6 +11,7 @@ use Mortezamasumi\FbReport\Reports\Reporter;
 class CategoryReporter extends Reporter
 {
     protected bool $showHtml = true;
+    public static bool $selectableColumns = false;
 
     public function getTableRowsData(): Collection
     {

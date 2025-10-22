@@ -307,7 +307,11 @@ trait CanCreateReport
 
     public function hasSelectableColumns(): bool
     {
-        return (bool) $this->evaluate($this->hasSelectableColumns);
+        /** @var Reporter $reporter */
+        $reporter = $this->getReporter();
+
+        /** @disregard */
+        return (bool) $this->evaluate($this->hasSelectableColumns) & $reporter::$selectableColumns;
     }
 
     public function forceUseReporterModel(bool|Closure $condition = true): static

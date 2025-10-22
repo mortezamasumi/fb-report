@@ -12,6 +12,7 @@ class GroupReporter extends Reporter
 {
     protected bool $showHtml = true;
     protected static ?string $model = Group::class;
+    public static bool $selectableColumns = false;
 
     public function getGroupItems(): Collection
     {
