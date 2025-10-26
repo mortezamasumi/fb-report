@@ -252,7 +252,7 @@ class ReportColumn extends Component
 
                 $format = $column->evaluate($format, ['record' => $record, 'state' => $state]);
                 $onlyDate = $column->evaluate($onlyDate, ['record' => $record, 'state' => $state]);
-                $format ??= ($onlyDate ? __('fb-essentials::fb-essentials.date_format.simple') : __('fb-essentials::fb-essentials.date_format.time_simple'));
+                $format ??= ($onlyDate ? __f_date() : __f_datetime());
 
                 return FbPersian::jDateTime($format, $state, $timezone, $forceLocale);
             }

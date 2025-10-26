@@ -41,7 +41,7 @@ it('can report using action in list page', function () {
                     foreach (Post::all() as $post) {
                         expect($decodedContent)
                             ->toContain('Title')
-                            ->toContain(FbPersian::digit($post->title));
+                            ->toContain(__digit($post->title));
                     }
                 });
         });
@@ -65,7 +65,7 @@ it('can report using action in record actions', function () {
 
                     expect($decodedContent)
                         ->toContain('Title')
-                        ->toContain(FbPersian::digit($post->title));
+                        ->toContain(__digit($post->title));
                 });
         });
 });
@@ -90,7 +90,7 @@ it('can report using toolbar action', function () {
                     foreach ($posts as $post) {
                         expect($decodedContent)
                             ->toContain('Title')
-                            ->toContain(FbPersian::digit($post->title));
+                            ->toContain(__digit($post->title));
                     }
                 });
         });
@@ -113,7 +113,7 @@ it('can report using header action', function () {
                     foreach (Post::all() as $post) {
                         expect($decodedContent)
                             ->toContain('Title')
-                            ->toContain(FbPersian::digit($post->title));
+                            ->toContain(__digit($post->title));
                     }
                 });
         });
@@ -136,7 +136,7 @@ it('can report using page action using useModel', function () {
                     foreach (Post::all() as $post) {
                         expect($decodedContent)
                             ->toContain('Title')
-                            ->toContain(FbPersian::digit($post->title));
+                            ->toContain(__digit($post->title));
                     }
                 });
         });
@@ -160,7 +160,7 @@ it('can report using page action using useRecord', function () {
 
                     expect($decodedContent)
                         ->toContain('Title')
-                        ->toContain(FbPersian::digit($post->title));
+                        ->toContain(__digit($post->title));
                 });
         });
 });

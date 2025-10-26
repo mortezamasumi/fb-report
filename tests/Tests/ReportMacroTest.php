@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\App;
-use Mortezamasumi\FbEssentials\Facades\FbPersian;
 use Mortezamasumi\FbReport\Tests\Services\Category;
 use Mortezamasumi\FbReport\Tests\Services\Group;
 use Mortezamasumi\FbReport\Tests\Services\Post;
@@ -65,15 +64,15 @@ it('can make posts report and verify content using macros', function () {
                     foreach (Post::all() as $post) {
                         expect($decodedContent)
                             ->toContain('Title')
-                            ->toContain(FbPersian::digit($post->title))
+                            ->toContain(__digit($post->title))
                             ->not
                             ->toContain($post->title)
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.simple'), $post->created_at))
+                            ->toContain(__jdatetime(__f_date(), $post->created_at))
                             ->not
-                            ->toContain($post->created_at->format(__('fb-essentials::fb-essentials.date_format.simple')))
-                            ->toContain(FbPersian::jDateTime(__('fb-essentials::fb-essentials.date_format.time_simple'), $post->created_at))
+                            ->toContain($post->created_at->format(__f_date()))
+                            ->toContain(__jdatetime(__f_datetime(), $post->created_at))
                             ->not
-                            ->toContain($post->created_at->format(__('fb-essentials::fb-essentials.date_format.time_simple')));
+                            ->toContain($post->created_at->format(__f_datetime()));
                     }
                 });
         });
