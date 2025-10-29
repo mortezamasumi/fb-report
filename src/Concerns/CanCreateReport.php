@@ -147,7 +147,7 @@ trait CanCreateReport
         $this->modalWidth('xl');
 
         $this->modalHidden(function (ReportAction|ReportBulkAction $action) {
-            if ($this->hasRequiredConfirmation) {
+            if ($this->isConfirmationRequired()) {
                 return false;
             };
 
