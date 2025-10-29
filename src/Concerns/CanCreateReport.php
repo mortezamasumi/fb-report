@@ -26,7 +26,7 @@ trait CanCreateReport
 {
     /** @var class-string<Reporter> */
     protected string $reporter;
-    protected bool|Closure $hasSelectableColumns = true;
+    protected bool|Closure $selectableColumns = true;
     protected bool|Closure $hasForceUseReporterModel = false;
     protected bool|Closure $hasRequiredConfirmation = false;
     /** @var array<string, mixed> | Closure */
@@ -146,11 +146,17 @@ trait CanCreateReport
 
         $this->modalWidth('xl');
 
-        $this->modalHidden(
-            fn (ReportAction|ReportBulkAction $action) => ! count($action->getReporter()::getOptionsFormComponents()) &&
-                ! $action->hasSelectableColumns() &&
-                ! $this->hasRequiredConfirmation
-        );
+        $this->modalHidden(function (ReportAction|ReportBulkAction $action) {
+            if ($this->hasRequiredConfirmation) {
+                return false;
+            };
+
+            if (count($action->getReporter()::getOptionsFormComponents())) {
+                return false;
+            }
+
+            return ! $action->hasSelectableColumns();
+        });
     }
 
     public function useRecord(Closure|Model|Collection|array|null $record): static
@@ -212,7 +218,6 @@ trait CanCreateReport
         if ($livewire instanceof ListRecords) {
             if ($action->getRecord()) {
                 return collect([$action->getRecord()]);
-                // return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
             }
 
             $reflection = new ReflectionClass($reporter);
@@ -235,7 +240,6 @@ trait CanCreateReport
 
         if ($livewire instanceof EditRecord) {
             return collect([$action->getRecord()]);
-            // return collect([$this->hasAuxRecord() ? $this->getAuxRecord() : $action->getRecord()]);
         }
 
         if ($reporter::getModel()) {
@@ -300,7 +304,7 @@ trait CanCreateReport
 
     public function selectableColumns(bool|Closure $condition = true): static
     {
-        $this->hasSelectableColumns = $condition;
+        $this->selectableColumns = $condition;
 
         return $this;
     }
@@ -311,7 +315,7 @@ trait CanCreateReport
         $reporter = $this->getReporter();
 
         /** @disregard */
-        return (bool) $this->evaluate($this->hasSelectableColumns) & $reporter::$selectableColumns;
+        return (bool) $this->evaluate($this->selectableColumns) && $reporter::$selectableColumns;
     }
 
     public function forceUseReporterModel(bool|Closure $condition = true): static
