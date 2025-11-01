@@ -337,4 +337,14 @@ abstract class Reporter
     {
         return $this->reportPageName;
     }
+
+    public function mpdfBeforHtml(LaravelMpdf $laravelMpdf): void
+    {
+        //
+    }
+
+    public function mpdfAfterHtml(LaravelMpdf $laravelMpdf): void
+    {
+        //
+    }
 }

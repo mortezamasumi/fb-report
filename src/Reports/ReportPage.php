@@ -189,6 +189,8 @@ class ReportPage extends Page
 
             $pdf = new LaravelMpdf(array_merge($defaultConfig, $this->reportConfig));
 
+            $this->reporter->mpdfBeforHtml($pdf);
+
             $pdf->getMpdf()->WriteHTML(View::make(
                 view: $this->reporter->getReportView(),
                 data: $this->reportData,
@@ -200,6 +202,8 @@ class ReportPage extends Page
                     '__mpdf' => $pdf->getMpdf(),
                 ],
             )->render());
+
+            $this->reporter->mpdfAfterHtml($pdf);
 
             $pdf->getMpdf()->SetProtection(array('copy', 'print'), '', 'SG@%$ashgf236dShsd&*7253');
 
