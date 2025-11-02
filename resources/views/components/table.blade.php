@@ -1,14 +1,3 @@
-@php
-    $titles = $data['__reporter']->getColumnsTitle();
-
-    $rows = $data['__reporter']->getTableRows();
-
-    // dd($rows);
-
-@endphp
-
-{!! $data['__reporter']->getBeforeHtml($data) !!}
-
 <table class="report-table">
     <tr>
         @foreach ($titles as $column)
@@ -28,5 +17,3 @@
         </tr>
     @endforeach
 </table>
-
-{!! $data['__reporter']->getAfterHtml($data) !!}

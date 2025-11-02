@@ -12,11 +12,8 @@
                     $data['__reporter']->setCurrentSubGroup($subGroup);
                     $data['__reporter']->setCurrentSubGroupIndex($subIndex);
                 @endphp
-                {{-- {!! $data['__reporter']->getBeforeHtml($data) !!} --}}
 
-                <x-fb-report::table :data="$data" />
-
-                {{-- {!! $data['__reporter']->getAfterHtml($data) !!} --}}
+                <x-fb-report::content :data="$data" />
 
                 @if (!$loop->last)
                     <pagebreak />
@@ -26,11 +23,7 @@
                 <pagebreak />
             @endif
         @else
-            {{-- {!! $data['__reporter']->getBeforeHtml($data) !!} --}}
-
-            <x-fb-report::table :data="$data" />
-
-            {{-- {!! $data['__reporter']->getAfterHtml($data) !!} --}}
+            <x-fb-report::content :data="$data" />
 
             @if (!$loop->last)
                 <pagebreak />
@@ -38,10 +31,5 @@
         @endif
     @endforeach
 @else
-    {{-- it is single table page --}}
-    {{-- {!! $data['__reporter']->getBeforeHtml($data) !!} --}}
-
-    <x-fb-report::table :data="$data" />
-
-    {{-- {!! $data['__reporter']->getAfterHtml($data) !!} --}}
+    <x-fb-report::content :data="$data" />
 @endif

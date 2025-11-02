@@ -23,7 +23,7 @@
 @endsection
 
 @section('report-content')
-    <x-fb-report::report-content :data="$__data" />
+    <x-fb-report::report :data="$__data" />
 @endsection
 
 @section('after-report')

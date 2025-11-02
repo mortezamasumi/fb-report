@@ -303,6 +303,11 @@ abstract class Reporter
         return '';
     }
 
+    public function getMainHtml($data, $titles, $rows): string|Htmlable
+    {
+        return View::make('fb-report::components.table', compact('data', 'titles', 'rows'))->render();
+    }
+
     public function getAfterHtml($data): string|Htmlable
     {
         return '';
