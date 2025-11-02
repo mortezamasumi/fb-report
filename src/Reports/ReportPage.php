@@ -184,6 +184,12 @@ class ReportPage extends Page
                         'useKashida' => 75,
                         'useOTL' => 0xFF,
                     ],
+                    'titr' => [
+                        'R' => 'Titr.ttf',
+                        'B' => 'Titr-Bold.ttf',
+                        'useKashida' => 75,
+                        'useOTL' => 0xFF,
+                    ],
                 ],
             ];
 
