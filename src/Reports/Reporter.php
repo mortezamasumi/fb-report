@@ -61,7 +61,7 @@ abstract class Reporter
     /**
      * @return array<ReportColumn>
      */
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [];
     }
