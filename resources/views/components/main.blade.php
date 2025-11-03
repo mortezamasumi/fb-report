@@ -1,31 +1,41 @@
-@extends('fb-report::components.layout')
+<html dir="{{ $dir }}" lang="{{ $lang }}">
 
-@section('title', $__data['__reporter']->getReportTitle($__data))
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-@push('rtl-support')
-    <x-fb-report::rtl-support :data="$__data" />
-@endpush
+        <title>{{ config('app.name') }} - @yield('title')</title>
 
-@push('styles')
-    <x-fb-report::styles :data="$__data" />
-@endpush
+        <x-fb-report::styles :data="$__data" />
 
-@push('custom-styles')
-    {!! $__data['__reporter']->getStyles($__data) !!}
-@endpush
+        {!! $__data['__reporter']->getStyles($__data) !!}
 
-@section('head')
-    {!! $__data['__reporter']->getHtmlHead($__data) !!}
-@endsection
+        {!! $__data['__reporter']->getHtmlHead($__data) !!}
 
-@section('before-report')
-    {!! $__data['__reporter']->getGroupBeforeHtml($__data) !!}
-@endsection
+        @if ($dir === 'rtl')
+            <x-fb-report::rtl-support :data="$__data" />
+        @endif
+    </head>
 
-@section('report-content')
-    <x-fb-report::report :data="$__data" />
-@endsection
+    <body>
+        @section('header')
+            <htmlpageheader name="Header">
+                {!! $__data['__reporter']->getReportHeader($__data) !!}
+            </htmlpageheader>
 
-@section('after-report')
-    {!! $__data['__reporter']->getGroupAfterHtml($__data) !!}
-@endsection
+            <sethtmlpageheader name="Header" show-this-page="1" />
+        @show
+
+        @section('footer')
+            <htmlpagefooter name="Footer">
+                {!! $__data['__reporter']->getReportFooter($__data) !!}
+            </htmlpagefooter>
+
+            <sethtmlpagefooter name="Footer" show-this-page="1" />
+        @show
+
+        <div class="container">
+            {!! $__data['__reporter']->getReportBody($__data) !!}
+        </div>
+    </body>
+
+</html>

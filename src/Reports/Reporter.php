@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Collection;
 use Mortezamasumi\FbReport\Facades\FbReport;
-use Closure;
 
 abstract class Reporter
 {
     use EvaluatesClosures;
+
+    // -------------------------------------------------------------------------
+    // Properties
+    // -------------------------------------------------------------------------
 
     protected $html;
     /** @var array<ReportColumn> */
@@ -22,11 +25,15 @@ abstract class Reporter
     protected static ?string $model = null;
     protected static string $view = 'fb-report::components.main';
     protected bool $showHtml = false;
-    protected array|collection|Model|null $currentGroup = null;
+    protected array|Collection|Model|null $currentGroup = null;
     protected int|string|null $currentGroupIndex = null;
-    protected array|collection|Model|null $currentSubGroup = null;
+    protected array|Collection|Model|null $currentSubGroup = null;
     protected int|string|null $currentSubGroupIndex = null;
     public static bool $selectableColumns = true;
+
+    // -------------------------------------------------------------------------
+    // Constructor
+    // -------------------------------------------------------------------------
 
     /**
      * @param  array<string, mixed>  $options
@@ -47,71 +54,98 @@ abstract class Reporter
         );
     }
 
-    public function getGroupItems(): ?Collection
+    // -------------------------------------------------------------------------
+    // Core Configuration (To be implemented by child)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @return array<ReportColumn>
+     */
+    abstract protected static function getColumns(): array;
+
+    public static function getModel(): string
     {
-        return null;
+        return static::$model ?? (string) str(class_basename(static::class))
+            ->beforeLast('Reporter')
+            ->prepend('App\\Models\\');
     }
+
+    public static function getOptionsFormComponents(): array
+    {
+        return [];
+    }
+
+    public static function modifyQuery(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    // -------------------------------------------------------------------------
+    // Main Report Rendering
+    // -------------------------------------------------------------------------
+
+    public function getReportBody($data): string|Htmlable
+    {
+        $html = $this->getGroupBeforeHtml($data);
+
+        if (! $this->hasGroupItems()) {
+            $html .= $this->getReportContent($data);
+        } else {
+            $html .= $this->renderGroupLoop($data);
+        }
+
+        return $html.$this->getGroupAfterHtml($data);
+    }
+
+    public function getReportContent($data): string|Htmlable
+    {
+        $titles = $this->getColumnsTitle();
+        $rows = $this->getTableRows();
+
+        $before = $this->getBeforeHtml($data);
+        $main = $this->getMainHtml($data, $titles, $rows);
+        $after = $this->getAfterHtml($data);
+
+        return $before.$main.$after;
+    }
+
+    // -------------------------------------------------------------------------
+    // Grouping Logic (Public API & Protected Hooks)
+    // -------------------------------------------------------------------------
 
     public function hasGroupItems(): bool
     {
-        return (!! $this->getGroupItems()?->count()) ?? false;
-    }
-
-    public function getCurrentGroup(): array|collection|Model|null
-    {
-        return $this->currentGroup;
-    }
-
-    public function getSubGroupItems(): ?Collection
-    {
-        return null;
+        return ($this->getGroupItems()?->count() ?? 0) > 0;
     }
 
     public function hasSubGroupItems(): bool
     {
-        return (!! $this->getSubGroupItems()?->count()) ?? false;
+        return ($this->getSubGroupItems()?->count() ?? 0) > 0;
     }
 
-    public function setCurrentGroup(array|collection|Model|null $item): void
+    protected function getGroupItems(): ?Collection
     {
-        $this->currentGroup = $item;
+        return null;
     }
 
-    public function setCurrentGroupIndex(int|string|null $index): void
+    protected function getSubGroupItems(): ?Collection
     {
-        $this->currentGroupIndex = $index;
+        return null;
     }
 
-    public function getCurrentSubGroup(): array|collection|Model|null
-    {
-        return $this->currentSubGroup;
-    }
-
-    public function setCurrentSubGroup(array|collection|Model|null $item): void
-    {
-        $this->currentSubGroup = $item;
-    }
-
-    public function setCurrentSubGroupIndex(int|string|null $index): void
-    {
-        $this->currentSubGroupIndex = $index;
-    }
+    // -------------------------------------------------------------------------
+    // Column & Row Data
+    // -------------------------------------------------------------------------
 
     public function getTableRows(): Collection
     {
-        if (! $this->getTableRowsData()) {
-            return collect([]);
-        }
-
         return $this
             ->getTableRowsData()
-            ->map(
-                function (Model|Collection|array|null $record, $index) {
-                    $this->setRecord($record ?? []);
+            ->map(function (Model|Collection|array|null $record, $index) {
+                $this->setRecord($record ?? []);
 
-                    return collect($this->getColumnsData($this->getRowNumber($index)));
-                }
-            );
+                return collect($this->getColumnsData($this->getRowNumber($index)));
+            });
     }
 
     public function getTableRowsData(): Collection
@@ -126,7 +160,8 @@ abstract class Reporter
 
     public function getCachedColumns(): array
     {
-        return $this->cachedColumns ?? array_reduce(
+        // <-- FIX: Caching now works correctly
+        return $this->cachedColumns ??= array_reduce(
             static::getColumns(),
             function (array $carry, ReportColumn $column): array {
                 $carry[$column->getName()] = $column->reporter($this);
@@ -141,16 +176,13 @@ abstract class Reporter
     {
         $columns = $this->getCachedColumns();
 
-        $data = [];
-
-        foreach (array_keys($this->selectedColumns ?? []) as $column) {
-            $data[] = [
+        // <-- SUGGESTION: Use collection pipeline
+        return collect($this->selectedColumns)
+            ->keys()
+            ->map(fn (string $column) => [
                 'width' => $columns[$column]->getSpanPercentage(),
                 'text' => $columns[$column]->getLabel(),
-            ];
-        }
-
-        return collect($data);
+            ]);
     }
 
     public function getColumnsData(int|string $sequenceNumber = ''): Collection
@@ -161,36 +193,117 @@ abstract class Reporter
 
         $columns = $this->getCachedColumns();
 
-        $data = [];
-
-        foreach (array_keys($this->selectedColumns ?? []) as $column) {
-            $data[] = [
+        // <-- SUGGESTION: Use collection pipeline
+        return collect($this->selectedColumns)
+            ->keys()
+            ->map(fn (string $column) => [
                 'width' => $columns[$column]->getSpanPercentage(),
                 'text' => $columns[$column]->getFormattedState(),
                 'align' => $columns[$column]->getAlign(),
                 'style' => $columns[$column]->getStyle(),
-            ];
+            ]);
+    }
+
+    public function getSelectedColumns(): array
+    {
+        $columns = $this->getCachedColumns();
+
+        $data = [];
+        foreach (array_keys($this->selectedColumns) as $column) {
+            $data[] = $columns[$column];
         }
 
-        return collect($data);
+        return $data;
     }
 
-    public static function getOptionsFormComponents(): array
+    public function getColumnsSpan(): int
     {
-        return [];
+        $total = 0;
+        foreach ($this->getSelectedColumns() as $column) {
+            if ($column instanceof ReportColumn) {
+                $total += $column->getSpan();
+            }
+        }
+
+        return $total;
     }
 
-    public function setModel(?string $model): void
+    // -------------------------------------------------------------------------
+    // HTML / View Hooks (To be overridden)
+    // -------------------------------------------------------------------------
+
+    public function getStyles($data): string|Htmlable
     {
-        static::$model = $model;
+        return '';
     }
 
-    public static function getModel(): string
+    public function getHtmlHead($data): string|Htmlable
     {
-        return static::$model ?? (string) str(class_basename(static::class))
-            ->beforeLast('Reporter')
-            ->prepend('App\\Models\\');
+        return '';
     }
+
+    public function getReportHeader($data): string|Htmlable
+    {
+        return View::make('fb-report::components.header', compact('data'))->render();
+    }
+
+    public function getReportFooter($data): string|Htmlable
+    {
+        return View::make('fb-report::components.footer', compact('data'))->render();
+    }
+
+    public function getReportTitle($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getReportDescription($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getGroupBeforeHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getGroupAfterHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getBeforeHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getMainHtml($data, $titles, $rows): string|Htmlable
+    {
+        return View::make('fb-report::components.table', compact('data', 'titles', 'rows'))->render();
+    }
+
+    public function getAfterHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    // -------------------------------------------------------------------------
+    // PDF Hooks
+    // -------------------------------------------------------------------------
+
+    public function mpdfBeforHtml(LaravelMpdf $laravelMpdf): void
+    {
+        //
+    }
+
+    public function mpdfAfterHtml(LaravelMpdf $laravelMpdf): void
+    {
+        //
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal State Management (Getters/Setters)
+    // -------------------------------------------------------------------------
 
     public function setRecords(array|Collection|null $records): void
     {
@@ -212,45 +325,48 @@ abstract class Reporter
         return $this->record;
     }
 
+    public function setModel(?string $model): void
+    {
+        static::$model = $model;
+    }
+
+    public function setCurrentGroup(array|Collection|Model|null $item): void
+    {
+        $this->currentGroup = $item;
+    }
+
+    public function getCurrentGroup(): array|Collection|Model|null
+    {
+        return $this->currentGroup;
+    }
+
+    public function setCurrentGroupIndex(int|string|null $index): void
+    {
+        $this->currentGroupIndex = $index;
+    }
+
+    public function setCurrentSubGroup(array|Collection|Model|null $item): void
+    {
+        $this->currentSubGroup = $item;
+    }
+
+    public function getCurrentSubGroup(): array|Collection|Model|null
+    {
+        return $this->currentSubGroup;
+    }
+
+    public function setCurrentSubGroupIndex(int|string|null $index): void
+    {
+        $this->currentSubGroupIndex = $index;
+    }
+
+    // -------------------------------------------------------------------------
+    // Utility Getters
+    // -------------------------------------------------------------------------
+
     public function getOptions(): array
     {
         return $this->options ?? [];
-    }
-
-    public static function modifyQuery(Builder $query): Builder
-    {
-        return $query;
-    }
-
-    public static function getColumns(): array
-    {
-        return [];
-    }
-
-    public function getSelectedColumns(): array
-    {
-        $columns = $this->getCachedColumns();
-
-        $data = [];
-
-        foreach (array_keys($this->selectedColumns ?? []) as $column) {
-            $data[] = $columns[$column];
-        }
-
-        return $data;
-    }
-
-    public function getColumnsSpan(): int
-    {
-        $total = 0;
-
-        foreach ($this->getSelectedColumns() as $column) {
-            if ($column instanceof ReportColumn) {
-                $total += $column->getSpan();
-            }
-        }
-
-        return $total;
     }
 
     public function getReturnUrl(): ?string
@@ -278,61 +394,6 @@ abstract class Reporter
         return $this->showHtml;
     }
 
-    public function getStyles($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getGroupBeforeHtml($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getGroupAfterHtml($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getHtmlHead($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getBeforeHtml($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getMainHtml($data, $titles, $rows): string|Htmlable
-    {
-        return View::make('fb-report::components.table', compact('data', 'titles', 'rows'))->render();
-    }
-
-    public function getAfterHtml($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getReportTitle($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getReportDescription($data): string|Htmlable
-    {
-        return '';
-    }
-
-    public function getReportHeader($data): string|Htmlable
-    {
-        return View::make('fb-report::components.header', compact('data'))->render();
-    }
-
-    public function getReportFooter($data): string|Htmlable
-    {
-        return View::make('fb-report::components.footer', compact('data'))->render();
-    }
-
     public function getPageTitle(): string|Htmlable
     {
         return '';
@@ -343,13 +404,51 @@ abstract class Reporter
         return $this->reportPageName;
     }
 
-    public function mpdfBeforHtml(LaravelMpdf $laravelMpdf): void
+    // -------------------------------------------------------------------------
+    // Private Render Helpers
+    // -------------------------------------------------------------------------
+
+    private function renderGroupLoop($data): string
     {
-        //
+        $html = '';
+        $groupItems = $this->getGroupItems();
+        $totalGroupItems = count($groupItems);
+
+        foreach ($groupItems as $groupIndex => $group) {
+            $this->setCurrentGroup($group);
+            $this->setCurrentGroupIndex($groupIndex);
+
+            $html .= $this->renderSubGroupLoop($data);
+
+            if ($groupIndex < $totalGroupItems - 1) {
+                $html .= '<pagebreak />';
+            }
+        }
+
+        return $html;
     }
 
-    public function mpdfAfterHtml(LaravelMpdf $laravelMpdf): void
+    private function renderSubGroupLoop($data): string
     {
-        //
+        if (! $this->hasSubGroupItems()) {
+            return $this->getReportContent($data);
+        }
+
+        $html = '';
+        $subGroupItems = $this->getSubGroupItems();
+        $totalSubGroupItems = count($subGroupItems);
+
+        foreach ($subGroupItems as $subGroupIndex => $subGroup) {
+            $this->setCurrentSubGroup($subGroup);
+            $this->setCurrentSubGroupIndex($subGroupIndex);
+
+            $html .= $this->getReportContent($data);
+
+            if ($subGroupIndex < $totalSubGroupItems - 1) {
+                $html .= '<pagebreak />';
+            }
+        }
+
+        return $html;
     }
 }

@@ -14,13 +14,47 @@ class ReportPage extends Page
     protected static string|array $routeMiddleware = 'signed';
     protected static bool $shouldRegisterNavigation = false;
     protected static ?string $slug = 'report';
+
+    protected const RTL_LANGUAGES = ['fa', 'ar', 'ur', 'he'];
+
     public $base64Pdf;
     protected ?Reporter $reporter = null;
     protected ?array $reportData;
     protected ?array $reportConfig;
     protected ?string $returnUrl = null;
+    protected string $lang;
+    protected string $dir;
 
     public function mount(): void
+    {
+        if (! $this->initializeReport()) {
+            redirect($this->returnUrl);
+
+            return;
+        }
+
+        if ($this->reporter->getShowHtml()) {
+            $this->generateHtmlReport();
+        } else {
+            $this->generatePdfReport();
+        }
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return $this->reporter?->getReportPageName()
+            ?? static::$title
+            ?? (string) str(class_basename(static::class))
+                ->kebab()
+                ->replace('-', ' ')
+                ->ucwords();
+    }
+
+    /**
+     * Load all report data from cache and set language properties.
+     * Returns false if the reporter is missing.
+     */
+    protected function initializeReport(): bool
     {
         $this->returnUrl = request()->get('returnUrl');
         $this->reporter = Cache::get(request()->get('reporter'));
@@ -28,200 +62,222 @@ class ReportPage extends Page
         $this->reportConfig = Cache::get(request()->get('reportConfig'));
 
         if (! $this->reporter) {
-            redirect($this->returnUrl);
-
-            return;
+            return false;
         }
 
-        $lang = $this->reportConfig['lang'] ?? App::getLocale();
-        $dir = $this->reportConfig['dir'] ?? in_array($lang, ['fa', 'ar', 'ur', 'he']) ? 'rtl' : 'ltr';
+        $this->lang = $this->reportConfig['lang'] ?? App::getLocale();
+        $this->dir = $this->reportConfig['dir']
+            ?? (in_array($this->lang, self::RTL_LANGUAGES) ? 'rtl' : 'ltr');
 
-        if ($this->reporter->getShowHtml()) {
-            $this->base64Pdf = base64_encode(
-                View::make(
-                    view: $this->reporter->getReportView(),
-                    data: $this->reportData,
-                    mergeData: [
-                        ...$this->reportConfig,
-                        'lang' => $lang,
-                        'dir' => $dir,
-                        '__reporter' => $this->reporter
-                    ],
-                )->render()
-            );
-        } else {
-            $defaultConfig = [
-                'mode' => 'utf-8',
-                'format' => 'A4',
-                'orientation' => 'P',
-                'direction' => $dir,
-                'margin_header' => 5,
-                'margin_footer' => 5,
-                'margin_top' => 5,
-                'useSubstitutions' => true,
-                'custom_font_dir' => __DIR__.'/../../resources/fonts/',  // don't forget the trailing slash!
-                'custom_font_data' => [
-                    'gandom' => [
-                        'R' => 'Gandom.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'homa' => [
-                        'R' => 'Homa.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'iran' => [
-                        'R' => 'Iran.ttf',
-                        'B' => 'Iran-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'keyhan' => [
-                        'R' => 'Keyhan.ttf',
-                        'B' => 'Keyhan-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'keyhannavaar' => [
-                        'R' => 'Keyhan-Navaar.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'keyhanpook' => [
-                        'R' => 'Keyhan-Pook.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'keyhansayeh' => [
-                        'R' => 'Keyhan-Sayeh.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'koodak' => [
-                        'R' => 'Koodak.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'lalezar' => [
-                        'R' => 'Lalezar.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'nastaliq' => [
-                        'R' => 'Nastaliq.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'nazli' => [
-                        'R' => 'Nazli.ttf',
-                        'B' => 'Nazli-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'parastoo' => [
-                        'R' => 'Parastoo.ttf',
-                        'B' => 'Parastoo-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'sahel' => [
-                        'R' => 'Sahel.ttf',
-                        'B' => 'Sahel-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'shabnam' => [
-                        'R' => 'Shabnam.ttf',
-                        'B' => 'Shabnam-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'shafigh' => [
-                        'R' => 'Shafigh.ttf',
-                        'B' => 'Shafigh-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'vahid' => [
-                        'R' => 'Vahid.ttf',
-                        'B' => 'Vahid-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'vazir' => [
-                        'R' => 'Vazirmatn.ttf',
-                        'B' => 'Vazirmatn-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'yaghut' => [
-                        'R' => 'Yaghut.ttf',
-                        'B' => 'Yaghut-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'yas' => [
-                        'R' => 'Yas.ttf',
-                        'B' => 'Yas-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'yermook' => [
-                        'R' => 'Yermook.ttf',
-                        'B' => 'Yermook-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'zar' => [
-                        'R' => 'Zar.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'ziba' => [
-                        'R' => 'Ziba.ttf',
-                        'B' => 'Ziba-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                    'titr' => [
-                        'R' => 'Titr.ttf',
-                        'B' => 'Titr-Bold.ttf',
-                        'useKashida' => 75,
-                        'useOTL' => 0xFF,
-                    ],
-                ],
-            ];
-
-            $pdf = new LaravelMpdf(array_merge($defaultConfig, $this->reportConfig));
-
-            $this->reporter->mpdfBeforHtml($pdf);
-
-            $pdf->getMpdf()->WriteHTML(View::make(
-                view: $this->reporter->getReportView(),
-                data: $this->reportData,
-                mergeData: [
-                    ...$this->reportConfig,
-                    'lang' => $lang,
-                    'dir' => $dir,
-                    '__reporter' => $this->reporter,
-                    '__mpdf' => $pdf->getMpdf(),
-                ],
-            )->render());
-
-            $this->reporter->mpdfAfterHtml($pdf);
-
-            $pdf->getMpdf()->SetProtection(array('copy', 'print'), '', 'SG@%$ashgf236dShsd&*7253');
-
-            $this->base64Pdf = base64_encode($pdf->output());
-        }
+        return true;
     }
 
-    public function getTitle(): string|Htmlable
+    /**
+     * Get the common data array to be passed to the Blade view.
+     */
+    protected function getReportViewData(?LaravelMpdf $pdfInstance = null): array
     {
-        return $this->reporter?->getReportPageName() ?? static::$title ?? (string) str(class_basename(static::class))
-            ->kebab()
-            ->replace('-', ' ')
-            ->ucwords();;
+        $data = [
+            ...$this->reportConfig,
+            'lang' => $this->lang,
+            'dir' => $this->dir,
+            '__reporter' => $this->reporter,
+        ];
+
+        if ($pdfInstance) {
+            $data['__mpdf'] = $pdfInstance->getMpdf();
+        }
+
+        return $data;
+    }
+
+    /**
+     * Generate a simple base64-encoded HTML report.
+     */
+    protected function generateHtmlReport(): void
+    {
+        $html = View::make(
+            view: $this->reporter->getReportView(),
+            data: $this->reportData,
+            mergeData: $this->getReportViewData()
+        )->render();
+
+        $this->base64Pdf = base64_encode($html);
+    }
+
+    /**
+     * Generate a base64-encoded PDF report using mPDF.
+     */
+    protected function generatePdfReport(): void
+    {
+        $config = array_merge($this->getDefaultMpdfConfig(), $this->reportConfig);
+        $pdf = new LaravelMpdf($config);
+
+        $this->reporter->mpdfBeforHtml($pdf);
+
+        $pdf->getMpdf()->WriteHTML(View::make(
+            view: $this->reporter->getReportView(),
+            data: $this->reportData,
+            mergeData: $this->getReportViewData($pdf),
+        )->render());
+
+        $this->reporter->mpdfAfterHtml($pdf);
+
+        // SUGGESTION: Move this password to .env and config
+        $password = config('fb-report.pdf_password', 'SG@%$ashgf236dShsd&*7253');
+        $pdf->getMpdf()->SetProtection(['copy', 'print'], '', $password);
+
+        $this->base64Pdf = base64_encode($pdf->output());
+    }
+
+    /**
+     * Returns the default configuration for mPDF.
+     * SUGGESTION: Move this to a dedicated config/fb-report.php file.
+     */
+    protected function getDefaultMpdfConfig(): array
+    {
+        return [
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'orientation' => 'P',
+            'direction' => $this->dir,
+            'margin_header' => 5,
+            'margin_footer' => 5,
+            'margin_top' => 5,
+            'useSubstitutions' => true,
+            // SUGGESTION: Make this path configurable
+            'custom_font_dir' => __DIR__.'/../../resources/fonts/',
+            'custom_font_data' => [
+                'gandom' => [
+                    'R' => 'Gandom.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'homa' => [
+                    'R' => 'Homa.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'iran' => [
+                    'R' => 'Iran.ttf',
+                    'B' => 'Iran-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'keyhan' => [
+                    'R' => 'Keyhan.ttf',
+                    'B' => 'Keyhan-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'keyhannavaar' => [
+                    'R' => 'Keyhan-Navaar.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'keyhanpook' => [
+                    'R' => 'Keyhan-Pook.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'keyhansayeh' => [
+                    'R' => 'Keyhan-Sayeh.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'koodak' => [
+                    'R' => 'Koodak.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'lalezar' => [
+                    'R' => 'Lalezar.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'nastaliq' => [
+                    'R' => 'Nastaliq.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'nazli' => [
+                    'R' => 'Nazli.ttf',
+                    'B' => 'Nazli-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'parastoo' => [
+                    'R' => 'Parastoo.ttf',
+                    'B' => 'Parastoo-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'sahel' => [
+                    'R' => 'Sahel.ttf',
+                    'B' => 'Sahel-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'shabnam' => [
+                    'R' => 'Shabnam.ttf',
+                    'B' => 'Shabnam-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'shafigh' => [
+                    'R' => 'Shafigh.ttf',
+                    'B' => 'Shafigh-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'vahid' => [
+                    'R' => 'Vahid.ttf',
+                    'B' => 'Vahid-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'vazir' => [
+                    'R' => 'Vazirmatn.ttf',
+                    'B' => 'Vazirmatn-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'yaghut' => [
+                    'R' => 'Yaghut.ttf',
+                    'B' => 'Yaghut-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'yas' => [
+                    'R' => 'Yas.ttf',
+                    'B' => 'Yas-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'yermook' => [
+                    'R' => 'Yermook.ttf',
+                    'B' => 'Yermook-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'zar' => [
+                    'R' => 'Zar.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'ziba' => [
+                    'R' => 'Ziba.ttf',
+                    'B' => 'Ziba-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+                'titr' => [
+                    'R' => 'Titr.ttf',
+                    'B' => 'Titr-Bold.ttf',
+                    'useKashida' => 75,
+                    'useOTL' => 0xFF,
+                ],
+            ],
+        ];
     }
 }

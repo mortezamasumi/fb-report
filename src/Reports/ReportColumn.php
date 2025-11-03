@@ -2,24 +2,27 @@
 
 namespace Mortezamasumi\FbReport\Reports;
 
-use Closure;
 use Filament\Support\Components\Component;
 use Filament\Support\Concerns\CanAggregateRelatedModels;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Number;
-use Mortezamasumi\FbEssentials\Facades\FbPersian;
 use Mortezamasumi\FbReport\Concerns\CanFormatState;
 use Mortezamasumi\FbReport\Concerns\HasCellState;
+use Closure;
 
 class ReportColumn extends Component
 {
     use CanAggregateRelatedModels;
     use CanFormatState;
     use HasCellState;
+
+    // -------------------------------------------------------------------------
+    // Properties
+    // -------------------------------------------------------------------------
 
     protected string $name;
     protected string|Closure|null $label = null;
@@ -30,6 +33,10 @@ class ReportColumn extends Component
     protected ?string $align = null;
     protected ?string $style = null;
     protected $shouldTranslateLabel = false;
+
+    // -------------------------------------------------------------------------
+    // Constructor & Factory
+    // -------------------------------------------------------------------------
 
     final public function __construct(string $name)
     {
@@ -44,6 +51,10 @@ class ReportColumn extends Component
         return $static;
     }
 
+    // -------------------------------------------------------------------------
+    // Core Configuration
+    // -------------------------------------------------------------------------
+
     public function name(string $name): static
     {
         $this->name = $name;
@@ -56,10 +67,17 @@ class ReportColumn extends Component
         return $this->name;
     }
 
+    public function label(string|Closure|null $label): static
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
     public function getLabel(): string|Htmlable|null
     {
         $label = $this->evaluate($this->label) ?? (string) str($this->getName())
-            ->beforeLast('.')
+            // ->beforeLast('.') // <-- BUG FIX: Removed this line
             ->afterLast('.')
             ->kebab()
             ->replace(['-', '_'], ' ')
@@ -70,13 +88,6 @@ class ReportColumn extends Component
             : $label;
     }
 
-    public function label(string|Closure|null $label): static
-    {
-        $this->label = $label;
-
-        return $this;
-    }
-
     public function translateLabel(bool $shouldTranslateLabel = true): static
     {
         $this->shouldTranslateLabel = $shouldTranslateLabel;
@@ -84,53 +95,15 @@ class ReportColumn extends Component
         return $this;
     }
 
+    // -------------------------------------------------------------------------
+    // Styling & Layout
+    // -------------------------------------------------------------------------
+
     public function span(int|Closure|null $span): static
     {
         $this->span = $span;
 
         return $this;
-    }
-
-    public function align(string|Closure $align): static
-    {
-        $this->align = $align;
-
-        return $this;
-    }
-
-    public function style(string|Closure $style): static
-    {
-        $this->style = $style;
-
-        return $this;
-    }
-
-    public function getStyle(): ?string
-    {
-        return $this->evaluate($this->style) ?? '';
-    }
-
-    public function getAlign(): ?string
-    {
-        $align = $this->evaluate($this->align) ?? 'center';
-
-        if (in_array(App::getLocale(), ['fa', 'ar', 'ur', 'he'])) {
-            if ($align === 'start') {
-                $align = 'right';
-            }
-            if ($align === 'end') {
-                $align = 'left';
-            }
-        } else {
-            if ($align === 'start') {
-                $align = 'left';
-            }
-            if ($align === 'end') {
-                $align = 'right';
-            }
-        }
-
-        return $align;
     }
 
     public function getSpan(): int
@@ -147,34 +120,86 @@ class ReportColumn extends Component
         return Number::format(number: 100 * ($this->getSpan() / $this->getReporter()->getColumnsSpan()), precision: 2);
     }
 
-    public function reporter(?Reporter $reporter): static
+    public function align(string|Closure $align): static
     {
-        $this->reporter = $reporter;
+        $this->align = $align;
 
         return $this;
     }
 
-    public function enabledByDefault(bool|Closure $condition = true): static
+    public function getAlign(): ?string
     {
-        $this->isEnabledByDefault = $condition;
+        $align = $this->evaluate($this->align) ?? 'center';
+
+        // <-- REFACTOR: Simplified alignment logic
+        if ($align === 'start') {
+            return $this->isRtl() ? 'right' : 'left';
+        }
+
+        if ($align === 'end') {
+            return $this->isRtl() ? 'left' : 'right';
+        }
+
+        return $align;
+    }
+
+    public function style(string|Closure $style): static
+    {
+        $this->style = $style;
 
         return $this;
     }
 
-    public function isEnabledByDefault(): bool
+    public function getStyle(): ?string
     {
-        return (bool) $this->evaluate($this->isEnabledByDefault);
+        return $this->evaluate($this->style) ?? '';
     }
 
-    public function getReporter(): ?Reporter
+    // -------------------------------------------------------------------------
+    // State & Formatting Helpers
+    // -------------------------------------------------------------------------
+
+    public function jDate(?string $format = null, ?string $timezone = null, ?string $forceLocale = null): static
     {
-        return $this->reporter;
+        $this->jDateTime($format, $timezone, $forceLocale, true);
+
+        return $this;
     }
 
-    public function getRecord(): mixed
+    public function jDateTime(string|Closure|null $format = null, ?string $timezone = null, ?string $forceLocale = null, bool|Closure $onlyDate = false): static
     {
-        return $this->getReporter()?->getRecord();
+        $this->formatStateUsing(
+            static function ($column, mixed $record, $state) use ($format, $timezone, $forceLocale, $onlyDate): ?string {
+                if (blank($state)) {
+                    return null;
+                }
+
+                $format = $column->evaluate($format, ['record' => $record, 'state' => $state]);
+                $onlyDate = $column->evaluate($onlyDate, ['record' => $record, 'state' => $state]);
+                $format ??= ($onlyDate ? __f_date() : __f_datetime());
+
+                return __jdatetime($format, $state, $timezone, $forceLocale);
+            }
+        );
+
+        return $this;
     }
+
+    public function localeDigit(?string $forceLocale = null): static
+    {
+        $this->formatStateUsing(
+            // <-- REFACTOR: More robust type check
+            static fn (mixed $state) => (is_string($state) || is_int($state) || is_float($state))
+                ? __digit($state, $forceLocale)
+                : $state
+        );
+
+        return $this;
+    }
+
+    // -------------------------------------------------------------------------
+    // Relationship & Data
+    // -------------------------------------------------------------------------
 
     public function applyRelationshipAggregates(EloquentBuilder $query): EloquentBuilder
     {
@@ -214,6 +239,47 @@ class ReportColumn extends Component
         return $query->with([$relationshipName]);
     }
 
+    // -------------------------------------------------------------------------
+    // Reporter & Record
+    // -------------------------------------------------------------------------
+
+    public function reporter(?Reporter $reporter): static
+    {
+        $this->reporter = $reporter;
+
+        return $this;
+    }
+
+    public function getReporter(): ?Reporter
+    {
+        return $this->reporter;
+    }
+
+    public function getRecord(): mixed
+    {
+        return $this->getReporter()?->getRecord();
+    }
+
+    // -------------------------------------------------------------------------
+    // Column Visibility
+    // -------------------------------------------------------------------------
+
+    public function enabledByDefault(bool|Closure $condition = true): static
+    {
+        $this->isEnabledByDefault = $condition;
+
+        return $this;
+    }
+
+    public function isEnabledByDefault(): bool
+    {
+        return (bool) $this->evaluate($this->isEnabledByDefault);
+    }
+
+    // -------------------------------------------------------------------------
+    // Dependency Injection
+    // -------------------------------------------------------------------------
+
     protected function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
         return match ($parameterName) {
@@ -235,40 +301,16 @@ class ReportColumn extends Component
         };
     }
 
-    public function jDate(?string $format = null, ?string $timezone = null, ?string $forceLocale = null): static
+    // -------------------------------------------------------------------------
+    // Internal Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Check if the current locale is RTL.
+     * SUGGESTION: Move this to a central trait or helper.
+     */
+    private function isRtl(): bool
     {
-        $this->jDateTime($format, $timezone, $forceLocale, true);
-
-        return $this;
-    }
-
-    public function jdateTime(string|Closure|null $format = null, ?string $timezone = null, ?string $forceLocale = null, bool|Closure $onlyDate = false): static
-    {
-        $this->formatStateUsing(
-            static function ($column, mixed $record, $state) use ($format, $timezone, $forceLocale, $onlyDate): ?string {
-                if (blank($state)) {
-                    return null;
-                }
-
-                $format = $column->evaluate($format, ['record' => $record, 'state' => $state]);
-                $onlyDate = $column->evaluate($onlyDate, ['record' => $record, 'state' => $state]);
-                $format ??= ($onlyDate ? __f_date() : __f_datetime());
-
-                return FbPersian::jDateTime($format, $state, $timezone, $forceLocale);
-            }
-        );
-
-        return $this;
-    }
-
-    public function localeDigit(?string $forceLocale = null): static
-    {
-        $this->formatStateUsing(
-            static fn (mixed $state) => in_array(gettype($state), ['integer', 'double', 'string'])
-                ? FbPersian::digit($state, $forceLocale)
-                : $state
-        );
-
-        return $this;
+        return in_array(App::getLocale(), ['fa', 'ar', 'ur', 'he']);
     }
 }
