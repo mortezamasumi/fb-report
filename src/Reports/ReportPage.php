@@ -27,7 +27,7 @@ class ReportPage extends Page
 
     public function mount(): void
     {
-        if (! $this->initializeReport()) {
+        if (!$this->initializeReport()) {
             redirect($this->returnUrl);
 
             return;
@@ -61,7 +61,7 @@ class ReportPage extends Page
         $this->reportData = Cache::get(request()->get('reportData'));
         $this->reportConfig = Cache::get(request()->get('reportConfig'));
 
-        if (! $this->reporter) {
+        if (!$this->reporter) {
             return false;
         }
 
@@ -110,16 +110,25 @@ class ReportPage extends Page
      */
     protected function generatePdfReport(): void
     {
+        ini_set('pcre.backtrack_limit', 10000000);
+        ini_set('memory_limit', '512M');
+
         $config = array_merge($this->getDefaultMpdfConfig(), $this->reportConfig);
         $pdf = new LaravelMpdf($config);
 
         $this->reporter->mpdfBeforHtml($pdf);
 
-        $pdf->getMpdf()->WriteHTML(View::make(
+        $htmlContent = View::make(
             view: $this->reporter->getReportView(),
             data: $this->reportData,
             mergeData: $this->getReportViewData($pdf),
-        )->render());
+        )->render();
+
+        $chunks = $this->splitHTMLIntoChunks($htmlContent, 50000);  // 50KB chunks
+
+        foreach ($chunks as $chunk) {
+            $pdf->getMpdf()->WriteHTML($chunk);
+        }
 
         $this->reporter->mpdfAfterHtml($pdf);
 
@@ -128,6 +137,30 @@ class ReportPage extends Page
         $pdf->getMpdf()->SetProtection(['copy', 'print'], '', $password);
 
         $this->base64Pdf = base64_encode($pdf->output());
+    }
+
+    private function splitHTMLIntoChunks($html, $chunkSize = 50000)
+    {
+        $chunks = [];
+        $currentChunk = '';
+
+        // Split by HTML tags to maintain structure
+        $parts = preg_split('/(<table\b[^>]*>.*?<\/table>|<div\b[^>]*>.*?<\/div>|<p\b[^>]*>.*?<\/p>)/si', $html, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+        foreach ($parts as $part) {
+            if (strlen($currentChunk . $part) > $chunkSize && !empty($currentChunk)) {
+                $chunks[] = $currentChunk;
+                $currentChunk = $part;
+            } else {
+                $currentChunk .= $part;
+            }
+        }
+
+        if (!empty($currentChunk)) {
+            $chunks[] = $currentChunk;
+        }
+
+        return $chunks;
     }
 
     /**
@@ -146,7 +179,7 @@ class ReportPage extends Page
             'margin_top' => 5,
             'useSubstitutions' => true,
             // SUGGESTION: Make this path configurable
-            'custom_font_dir' => __DIR__.'/../../resources/fonts/',
+            'custom_font_dir' => __DIR__ . '/../../resources/fonts/',
             'custom_font_data' => [
                 'gandom' => [
                     'R' => 'Gandom.ttf',
