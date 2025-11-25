@@ -89,13 +89,15 @@ abstract class Reporter
 
     public function getReportBody($data): string|Htmlable
     {
+        // $this->setRecord(collect([]));
+
         $html = $this->getGroupBeforeHtml($data);
 
-        if (!$this->hasGroupItems()) {
-            $html .= $this->getReportContent($data);
-        } else {
-            $html .= $this->renderGroupLoop($data);
-        }
+        // if (!$this->hasGroupItems()) {
+        //     $html .= $this->getReportContent($data);
+        // } else {
+        $html .= $this->renderGroupLoop($data);
+        // }
 
         return $html . $this->getGroupAfterHtml($data);
     }
@@ -110,6 +112,57 @@ abstract class Reporter
         $after = $this->getAfterHtml($data);
 
         return $before . $main . $after;
+        // return $main;
+    }
+
+    private function renderGroupLoop($data): string
+    {
+        $html = $this->getSubGroupBeforeHtml($data);
+
+        if ($this->hasGroupItems()) {
+            $groupItems = $this->getGroupItems();
+            $totalGroupItems = count($groupItems);
+
+            foreach ($groupItems as $groupIndex => $group) {
+                $this->setCurrentGroup($group);
+                $this->setCurrentGroupIndex($groupIndex);
+
+                $html .= $this->renderSubGroupLoop($data);
+
+                if ($groupIndex < $totalGroupItems - 1) {
+                    $html .= '<pagebreak />';
+                }
+            }
+        } else {
+            $html .= $this->getReportContent($data);
+        }
+
+        return $html . $this->getSubGroupAfterHtml($data);
+    }
+
+    private function renderSubGroupLoop($data): string
+    {
+        $html = '';
+
+        if ($this->hasSubGroupItems()) {
+            $subGroupItems = $this->getSubGroupItems();
+            $totalSubGroupItems = count($subGroupItems);
+
+            foreach ($subGroupItems as $subGroupIndex => $subGroup) {
+                $this->setCurrentSubGroup($subGroup);
+                $this->setCurrentSubGroupIndex($subGroupIndex);
+
+                $html .= $this->getReportContent($data);
+
+                if ($subGroupIndex < $totalSubGroupItems - 1) {
+                    $html .= '<pagebreak />';
+                }
+            }
+        } else {
+            $html .= $this->getReportContent($data);
+        }
+
+        return $html;
     }
 
     // -------------------------------------------------------------------------
@@ -209,14 +262,15 @@ abstract class Reporter
 
     public function getSelectedColumns(): array
     {
-        $columns = $this->getCachedColumns();
+        return array_values(array_intersect_key($this->getCachedColumns(), $this->selectedColumns));
 
-        $data = [];
-        foreach (array_keys($this->selectedColumns) as $column) {
-            $data[] = $columns[$column];
-        }
+        // $columns = $this->getCachedColumns();
+        // $data = [];
+        // foreach (array_keys($this->selectedColumns) as $column) {
+        //     $data[] = $columns[$column];
+        // }
 
-        return $data;
+        // return $data;
     }
 
     public function getColumnsSpan(): int
@@ -420,48 +474,4 @@ abstract class Reporter
     // -------------------------------------------------------------------------
     // Private Render Helpers
     // -------------------------------------------------------------------------
-
-    private function renderGroupLoop($data): string
-    {
-        $html = $this->getSubGroupBeforeHtml($data);
-        $groupItems = $this->getGroupItems();
-        $totalGroupItems = count($groupItems);
-
-        foreach ($groupItems as $groupIndex => $group) {
-            $this->setCurrentGroup($group);
-            $this->setCurrentGroupIndex($groupIndex);
-
-            $html .= $this->renderSubGroupLoop($data);
-
-            if ($groupIndex < $totalGroupItems - 1) {
-                $html .= '<pagebreak />';
-            }
-        }
-
-        return $html . $this->getSubGroupAfterHtml($data);
-    }
-
-    private function renderSubGroupLoop($data): string
-    {
-        if (!$this->hasSubGroupItems()) {
-            return $this->getReportContent($data);
-        }
-
-        $html = '';
-        $subGroupItems = $this->getSubGroupItems();
-        $totalSubGroupItems = count($subGroupItems);
-
-        foreach ($subGroupItems as $subGroupIndex => $subGroup) {
-            $this->setCurrentSubGroup($subGroup);
-            $this->setCurrentSubGroupIndex($subGroupIndex);
-
-            $html .= $this->getReportContent($data);
-
-            if ($subGroupIndex < $totalSubGroupItems - 1) {
-                $html .= '<pagebreak />';
-            }
-        }
-
-        return $html;
-    }
 }
