@@ -91,13 +91,13 @@ abstract class Reporter
     {
         $html = $this->getGroupBeforeHtml($data);
 
-        if (! $this->hasGroupItems()) {
+        if (!$this->hasGroupItems()) {
             $html .= $this->getReportContent($data);
         } else {
             $html .= $this->renderGroupLoop($data);
         }
 
-        return $html.$this->getGroupAfterHtml($data);
+        return $html . $this->getGroupAfterHtml($data);
     }
 
     public function getReportContent($data): string|Htmlable
@@ -109,7 +109,7 @@ abstract class Reporter
         $main = $this->getMainHtml($data, $titles, $rows);
         $after = $this->getAfterHtml($data);
 
-        return $before.$main.$after;
+        return $before . $main . $after;
     }
 
     // -------------------------------------------------------------------------
@@ -182,7 +182,7 @@ abstract class Reporter
         // <-- SUGGESTION: Use collection pipeline
         return collect($this->selectedColumns)
             ->keys()
-            ->map(fn (string $column) => [
+            ->map(fn(string $column) => [
                 'width' => $columns[$column]->getSpanPercentage(),
                 'text' => $columns[$column]->getLabel(),
             ]);
@@ -199,7 +199,7 @@ abstract class Reporter
         // <-- SUGGESTION: Use collection pipeline
         return collect($this->selectedColumns)
             ->keys()
-            ->map(fn (string $column) => [
+            ->map(fn(string $column) => [
                 'width' => $columns[$column]->getSpanPercentage(),
                 'text' => $columns[$column]->getFormattedState(),
                 'align' => $columns[$column]->getAlign(),
@@ -271,6 +271,16 @@ abstract class Reporter
     }
 
     public function getGroupAfterHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getSubGroupBeforeHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getSubGroupAfterHtml($data): string|Htmlable
     {
         return '';
     }
@@ -413,7 +423,7 @@ abstract class Reporter
 
     private function renderGroupLoop($data): string
     {
-        $html = '';
+        $html = $this->getSubGroupBeforeHtml($data);
         $groupItems = $this->getGroupItems();
         $totalGroupItems = count($groupItems);
 
@@ -428,12 +438,12 @@ abstract class Reporter
             }
         }
 
-        return $html;
+        return $html . $this->getSubGroupAfterHtml($data);
     }
 
     private function renderSubGroupLoop($data): string
     {
-        if (! $this->hasSubGroupItems()) {
+        if (!$this->hasSubGroupItems()) {
             return $this->getReportContent($data);
         }
 
