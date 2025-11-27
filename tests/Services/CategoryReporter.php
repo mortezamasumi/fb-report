@@ -10,7 +10,7 @@ use Mortezamasumi\FbReport\Reports\Reporter;
 
 class CategoryReporter extends Reporter
 {
-    protected bool $showHtml = true;
+    // protected bool $showHtml = true;
     public static bool $selectableColumns = false;
 
     public function getTableRowsData(): Collection
@@ -38,7 +38,7 @@ class CategoryReporter extends Reporter
 
     public function getBeforeHtml($data): string|Htmlable
     {
-        return new HtmlString($this->getRecord()->category->group->title.' '.$this->getRecord()->category->title);
+        return new HtmlString($this->getRecord()->category->group->title . ' ' . $this->getRecord()->category->title);
     }
 
     public static function getColumns(): array

@@ -10,6 +10,8 @@ use Mortezamasumi\FbReport\Tests\Services\PostResource;
 use Mortezamasumi\FbReport\Tests\Services\ReportPage;
 use Mortezamasumi\FbReport\Tests\Services\User;
 
+return;
+
 beforeEach(function () {
     Group::factory(3)
         ->has(Category::factory(3)

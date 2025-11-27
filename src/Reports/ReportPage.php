@@ -110,31 +110,62 @@ class ReportPage extends Page
      */
     protected function generatePdfReport(): void
     {
-        ini_set('pcre.backtrack_limit', 10000000);
-        ini_set('memory_limit', '512M');
+        // ini_set('pcre.backtrack_limit', 10000000);
+        // ini_set('memory_limit', '512M');
 
         $config = array_merge($this->getDefaultMpdfConfig(), $this->reportConfig);
         $pdf = new LaravelMpdf($config);
 
-        $this->reporter->mpdfBeforHtml($pdf);
+        // $this->reporter->mpdfBeforHtml($pdf);
 
-        $htmlContent = View::make(
+        // $htmlContent = View::make(
+        //     view: $this->reporter->getReportView(),
+        //     data: $this->reportData,
+        //     mergeData: $this->getReportViewData($pdf),
+        // )->render();
+
+        // dd($htmlContent);
+
+        // $chunks = $this->splitHTMLIntoChunks($htmlContent, 50000);  // 50KB chunks
+
+        // foreach ($chunks as $chunk) {
+        //     $pdf->getMpdf()->WriteHTML($chunk);
+        // }
+
+        // $this->reporter->mpdfAfterHtml($pdf);
+
+        $htmlBeforBodyOpen = View::make(
             view: $this->reporter->getReportView(),
             data: $this->reportData,
             mergeData: $this->getReportViewData($pdf),
         )->render();
 
-        $chunks = $this->splitHTMLIntoChunks($htmlContent, 50000);  // 50KB chunks
-
-        foreach ($chunks as $chunk) {
-            $pdf->getMpdf()->WriteHTML($chunk);
+        $pos = stripos($htmlBeforBodyOpen, '</body>');
+        if ($pos !== false) {
+            $htmlWithoutBodyClose = substr($htmlBeforBodyOpen, 0, $pos);
+        } else {
+            $htmlWithoutBodyClose = $htmlBeforBodyOpen;
         }
 
-        $this->reporter->mpdfAfterHtml($pdf);
+        $mpdf = $pdf->getMpdf();
+
+        $mpdf->WriteHTML($htmlWithoutBodyClose);
+        $mpdf->WriteHTML('<div class="container">');
+
+        /** this will create pages and write it directly to mpdf by WriteHtml */
+        $this->reporter->makeContent(
+            $mpdf,
+            array_merge(
+                $this->reportData,
+                $this->getReportViewData($pdf)
+            )
+        );
+
+        $mpdf->WriteHTML('</div></body></html>');
 
         // SUGGESTION: Move this password to .env and config
         $password = config('fb-report.pdf_password', 'SG@%$ashgf236dShsd&*7253');
-        $pdf->getMpdf()->SetProtection(['copy', 'print'], '', $password);
+        $mpdf->SetProtection(['copy', 'print'], '', $password);
 
         $this->base64Pdf = base64_encode($pdf->output());
     }

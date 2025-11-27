@@ -87,37 +87,28 @@ abstract class Reporter
     // Main Report Rendering
     // -------------------------------------------------------------------------
 
-    public function getReportBody($data): string|Htmlable
-    {
-        // $this->setRecord(collect([]));
-
-        $html = $this->getGroupBeforeHtml($data);
-
-        // if (!$this->hasGroupItems()) {
-        //     $html .= $this->getReportContent($data);
-        // } else {
-        $html .= $this->renderGroupLoop($data);
-        // }
-
-        return $html . $this->getGroupAfterHtml($data);
-    }
-
-    public function getReportContent($data): string|Htmlable
+    public function pageContent($mpdf, $data): void
     {
         $titles = $this->getColumnsTitle();
         $rows = $this->getTableRows();
 
-        $before = $this->getBeforeHtml($data);
-        $main = $this->getMainHtml($data, $titles, $rows);
-        $after = $this->getAfterHtml($data);
-
-        return $before . $main . $after;
-        // return $main;
+        $this->pageBefore($mpdf, $data);
+        $mpdf->WriteHTML($this->getMainHtml($data, $titles, $rows));
+        $this->pageAfter($mpdf, $data);
     }
 
-    private function renderGroupLoop($data): string
+    public function makeContent($mpdf, $data): void
     {
-        $html = $this->getSubGroupBeforeHtml($data);
+        $this->groupBefore($mpdf, $data);
+
+        $this->groupLoop($mpdf, $data);
+
+        $this->groupAfter($mpdf, $data);
+    }
+
+    private function groupLoop($mpdf, $data): void
+    {
+        $this->subGroupBefore($mpdf, $data);
 
         if ($this->hasGroupItems()) {
             $groupItems = $this->getGroupItems();
@@ -127,23 +118,21 @@ abstract class Reporter
                 $this->setCurrentGroup($group);
                 $this->setCurrentGroupIndex($groupIndex);
 
-                $html .= $this->renderSubGroupLoop($data);
+                $this->subGroupLoop($mpdf, $data);
 
                 if ($groupIndex < $totalGroupItems - 1) {
-                    $html .= '<pagebreak />';
+                    $mpdf->AddPage();
                 }
             }
         } else {
-            $html .= $this->getReportContent($data);
+            $this->pageContent($mpdf, $data);
         }
 
-        return $html . $this->getSubGroupAfterHtml($data);
+        $this->subGroupAfter($mpdf, $data);
     }
 
-    private function renderSubGroupLoop($data): string
+    private function subGroupLoop($mpdf, $data): void
     {
-        $html = '';
-
         if ($this->hasSubGroupItems()) {
             $subGroupItems = $this->getSubGroupItems();
             $totalSubGroupItems = count($subGroupItems);
@@ -152,18 +141,102 @@ abstract class Reporter
                 $this->setCurrentSubGroup($subGroup);
                 $this->setCurrentSubGroupIndex($subGroupIndex);
 
-                $html .= $this->getReportContent($data);
+                $this->pageContent($mpdf, $data);
 
                 if ($subGroupIndex < $totalSubGroupItems - 1) {
-                    $html .= '<pagebreak />';
+                    $mpdf->AddPage();
                 }
             }
         } else {
-            $html .= $this->getReportContent($data);
+            $this->pageContent($mpdf, $data);
         }
-
-        return $html;
     }
+
+    /* */
+    /* */
+    /* */
+    /* */
+    /* */
+    /* */
+    /* */
+
+    // public function getReportBody($data): string|Htmlable
+    // {
+    //     // $this->setRecord(collect([]));
+
+    //     $html = $this->getGroupBeforeHtml($data);
+
+    //     // if (!$this->hasGroupItems()) {
+    //     //     $html .= $this->getReportContent($data);
+    //     // } else {
+    //     $html .= $this->renderGroupLoop($data);
+    //     // }
+
+    //     return $html . $this->getGroupAfterHtml($data);
+    // }
+
+    // public function getReportContent($data): string|Htmlable
+    // {
+    //     $titles = $this->getColumnsTitle();
+    //     $rows = $this->getTableRows();
+
+    //     $before = $this->getBeforeHtml($data);
+    //     $main = $this->getMainHtml($data, $titles, $rows);
+    //     $after = $this->getAfterHtml($data);
+
+    //     return $before . $main . $after;
+    //     // return $main;
+    // }
+
+    // private function renderGroupLoop($data): string
+    // {
+    //     $html = $this->getSubGroupBeforeHtml($data);
+
+    //     if ($this->hasGroupItems()) {
+    //         $groupItems = $this->getGroupItems();
+    //         $totalGroupItems = count($groupItems);
+
+    //         foreach ($groupItems as $groupIndex => $group) {
+    //             $this->setCurrentGroup($group);
+    //             $this->setCurrentGroupIndex($groupIndex);
+
+    //             $html .= $this->renderSubGroupLoop($data);
+
+    //             if ($groupIndex < $totalGroupItems - 1) {
+    //                 $html .= '<pagebreak />';
+    //             }
+    //         }
+    //     } else {
+    //         $html .= $this->getReportContent($data);
+    //     }
+
+    //     return $html . $this->getSubGroupAfterHtml($data);
+    // }
+
+    // private function renderSubGroupLoop($data): string
+    // {
+    //     $html = '';
+
+    //     if ($this->hasSubGroupItems()) {
+    //         $subGroupItems = $this->getSubGroupItems();
+    //         $totalSubGroupItems = count($subGroupItems);
+
+    //         foreach ($subGroupItems as $subGroupIndex => $subGroup) {
+    //             $this->setCurrentSubGroup($subGroup);
+    //             $this->setCurrentSubGroupIndex($subGroupIndex);
+
+    //             $html .= $this->getReportContent($data);
+
+    //             if ($subGroupIndex < $totalSubGroupItems - 1) {
+    //                 $html .= '<pagebreak />';
+    //             }
+    //         }
+    //     } else {
+    //         $html .= $this->getReportContent($data);
+    //     }
+
+    //     return $html;
+    // }
 
     // -------------------------------------------------------------------------
     // Grouping Logic (Public API & Protected Hooks)
@@ -352,6 +425,60 @@ abstract class Reporter
     public function getAfterHtml($data): string|Htmlable
     {
         return '';
+    }
+
+    public function groupBefore($mpdf, $data): void
+    {
+        $html = $this->getGroupBeforeHtml($data);
+
+        if (!empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
+    }
+
+    public function groupAfter($mpdf, $data): void
+    {
+        $html = $this->getGroupAfterHtml($data);
+
+        if (!empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
+    }
+
+    public function subGroupBefore($mpdf, $data): void
+    {
+        $html = $this->getSubGroupBeforeHtml($data);
+
+        if (!empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
+    }
+
+    public function subGroupAfter($mpdf, $data): void
+    {
+        $html = $this->getSubGroupAfterHtml($data);
+
+        if (!empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
+    }
+
+    public function pageBefore($mpdf, $data): void
+    {
+        $html = $this->getBeforeHtml($data);
+
+        if (!empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
+    }
+
+    public function pageAfter($mpdf, $data): void
+    {
+        $html = $this->getAfterHtml($data);
+
+        if (!empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
     }
 
     // -------------------------------------------------------------------------
