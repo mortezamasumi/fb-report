@@ -374,12 +374,18 @@ abstract class Reporter
 
     public function getReportHeader($data): string|Htmlable
     {
-        return View::make('fb-report::components.header', compact('data'))->render();
+        if ($data['default_header'] ?? true) {
+            return View::make('fb-report::components.header', compact('data'))->render();
+        }
+        return '';
     }
 
     public function getReportFooter($data): string|Htmlable
     {
-        return View::make('fb-report::components.footer', compact('data'))->render();
+        if ($data['default_footer'] ?? true) {
+            return View::make('fb-report::components.footer', compact('data'))->render();
+        }
+        return '';
     }
 
     public function getReportTitle($data): string|Htmlable
