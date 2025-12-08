@@ -7,7 +7,6 @@ use Mortezamasumi\FbReport\Reports\Reporter;
 
 class PostReporter extends Reporter
 {
-    // protected bool $showHtml = true;
     public static bool $selectableColumns = false;
 
     public static function getColumns(): array

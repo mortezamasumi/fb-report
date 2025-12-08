@@ -10,8 +10,6 @@ use Mortezamasumi\FbReport\Tests\Services\PostResource;
 use Mortezamasumi\FbReport\Tests\Services\ReportPage;
 use Mortezamasumi\FbReport\Tests\Services\User;
 
-return;
-
 beforeEach(function () {
     Group::factory(3)
         ->has(Category::factory(3)
@@ -20,6 +18,7 @@ beforeEach(function () {
 });
 
 it('can render list page', function () {
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->get(PostResource::getUrl('index'))
@@ -27,6 +26,7 @@ it('can render list page', function () {
 });
 
 it('can report using action in list page', function () {
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -52,6 +52,7 @@ it('can report using action in list page', function () {
 it('can report using action in record actions', function () {
     $post = Post::latest('title')->first();
 
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -75,6 +76,7 @@ it('can report using action in record actions', function () {
 it('can report using toolbar action', function () {
     $posts = Post::all()->shuffle()->take(30);
 
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -99,6 +101,7 @@ it('can report using toolbar action', function () {
 });
 
 it('can report using header action', function () {
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -122,6 +125,7 @@ it('can report using header action', function () {
 });
 
 it('can report using page action using useModel', function () {
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ReportPage::class)
@@ -145,6 +149,7 @@ it('can report using page action using useModel', function () {
 });
 
 it('can report using page action using useRecord', function () {
+    /** @var Illuminate\Foundation\Testing $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ReportPage::class)

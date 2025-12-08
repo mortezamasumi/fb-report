@@ -25,5 +25,16 @@ function getDecodedIframeContent(TestResponse $response): string
     $decodedContent = base64_decode($parts[1]);
     $test->assertNotFalse($decodedContent, 'Failed to base64_decode the iframe content.');
 
-    return $decodedContent;
+    $parser = new Smalot\PdfParser\Parser();
+
+    $pdfPath = storage_path('app/tmp_' . uniqid() . '.pdf');
+    file_put_contents($pdfPath, $decodedContent);
+
+    $pdf = $parser->parseFile($pdfPath);
+
+    $text = $pdf->getText();
+
+    unlink($pdfPath);
+
+    return $text;
 }

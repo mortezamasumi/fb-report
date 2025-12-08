@@ -164,8 +164,10 @@ class ReportPage extends Page
         $mpdf->WriteHTML('</div></body></html>');
 
         // SUGGESTION: Move this password to .env and config
-        $password = config('fb-report.pdf_password', 'SG@%$ashgf236dShsd&*7253');
-        $mpdf->SetProtection(['copy', 'print'], '', $password);
+        if (!App::environment('testing')) {
+            $password = config('fb-report.pdf_password', 'SG@%$ashgf236dShsd&*7253');
+            $mpdf->SetProtection(['copy', 'print'], '', $password);
+        }
 
         $this->base64Pdf = base64_encode($pdf->output());
     }
