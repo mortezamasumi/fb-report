@@ -9,12 +9,14 @@ use Mortezamasumi\FbReport\Tests\Services\ReportPage;
 use Mortezamasumi\FbReport\Tests\Services\User;
 
 it('can render report page', function () {
+    /** @var Pest $this */
     $this
         ->livewire(ReportPage::class)
         ->assertSuccessful();
 });
 
 it('can see report action', function () {
+    /** @var Pest $this */
     $this
         ->livewire(ReportPage::class)
         ->assertActionExists('page-all-report')
@@ -22,6 +24,7 @@ it('can see report action', function () {
 });
 
 it('can call report action', function () {
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ReportPage::class)
@@ -37,6 +40,7 @@ it('can make posts report and verify content using macros', function () {
             ->has(Post::factory(1)))
         ->create();
 
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ReportPage::class)

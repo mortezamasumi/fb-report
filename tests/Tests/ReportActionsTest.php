@@ -1,7 +1,6 @@
 <?php
 
 use Filament\Actions\Testing\TestAction;
-use Mortezamasumi\FbEssentials\Facades\FbPersian;
 use Mortezamasumi\FbReport\Tests\Services\Category;
 use Mortezamasumi\FbReport\Tests\Services\Group;
 use Mortezamasumi\FbReport\Tests\Services\ListPosts;
@@ -18,7 +17,7 @@ beforeEach(function () {
 });
 
 it('can render list page', function () {
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->get(PostResource::getUrl('index'))
@@ -26,7 +25,7 @@ it('can render list page', function () {
 });
 
 it('can report using action in list page', function () {
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -52,7 +51,7 @@ it('can report using action in list page', function () {
 it('can report using action in record actions', function () {
     $post = Post::latest('title')->first();
 
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -76,7 +75,7 @@ it('can report using action in record actions', function () {
 it('can report using toolbar action', function () {
     $posts = Post::all()->shuffle()->take(30);
 
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -101,7 +100,7 @@ it('can report using toolbar action', function () {
 });
 
 it('can report using header action', function () {
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ListPosts::class)
@@ -125,7 +124,7 @@ it('can report using header action', function () {
 });
 
 it('can report using page action using useModel', function () {
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ReportPage::class)
@@ -149,7 +148,7 @@ it('can report using page action using useModel', function () {
 });
 
 it('can report using page action using useRecord', function () {
-    /** @var Illuminate\Foundation\Testing $this */
+    /** @var Pest $this */
     $this
         ->actingAs(User::factory()->create())
         ->livewire(ReportPage::class)
