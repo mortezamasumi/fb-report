@@ -12,13 +12,11 @@ beforeEach(function () {
             ->has(Post::factory(5)))
         ->create();
 
-    /** @var Pest $this */
     $this->actingAs(User::factory()->create());
 });
 
 describe('Posts on Group model using GroupReporter', function () {
     it('can make report using group/sub-group by Group model', function () {
-        /** @var Pest $this */
         $this
             ->livewire(ReportPage::class)
             ->assertActionExists('page-group-report')
@@ -44,7 +42,6 @@ describe('Posts on Group model using GroupReporter', function () {
 
 describe('Posts on Categories model using CategoryReporter both states', function () {
     it('can make report using group/sub-group by useRecord set Group instance', function () {
-        /** @var Pest $this */
         $this
             ->livewire(ReportPage::class)
             ->assertActionExists('page-category-report')
@@ -72,7 +69,6 @@ describe('Posts on Categories model using CategoryReporter both states', functio
     });
 
     it('can make report using group/sub-group by Category model', function () {
-        /** @var Pest $this */
         $this
             ->livewire(ReportPage::class)
             ->assertActionExists('page-categories-report')
