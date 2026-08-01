@@ -11,6 +11,7 @@ use Mortezamasumi\FbReport\Reports\Reporter;
 class GroupReporter extends Reporter
 {
     protected static ?string $model = Group::class;
+
     public static bool $selectableColumns = false;
 
     public function getGroupItems(): Collection
@@ -30,7 +31,7 @@ class GroupReporter extends Reporter
 
     public function getBeforeHtml($data): string|Htmlable
     {
-        return new HtmlString($this->getRecord()->category->group->title . ' ' . $this->getRecord()->category->title);
+        return new HtmlString($this->getRecord()->category->group->title.' '.$this->getRecord()->category->title);
     }
 
     public static function getColumns(): array

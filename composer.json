@@ -1,10 +1,13 @@
 {
     "name": "mortezamasumi/fb-report",
-    "description": "This is my package fb-report",
+    "description": "Generate PDF reports using mPDF for Filament.",
     "keywords": [
         "mortezamasumi",
         "laravel",
-        "fb-report"
+        "filament",
+        "fb-report",
+        "pdf",
+        "mpdf"
     ],
     "homepage": "https://github.com/mortezamasumi/fb-report",
     "support": {
@@ -35,7 +38,10 @@
         "pestphp/pest-plugin-laravel": "^4.0",
         "pestphp/pest-plugin-livewire": "^4.0",
         "smalot/pdfparser": "^2.12",
-        "symfony/dom-crawler": "^7.3"
+        "symfony/dom-crawler": "^7.3",
+        "larastan/larastan": "^3.10",
+        "laravel/pint": "^1.30",
+        "phpstan/phpstan": "^2.2"
     },
     "autoload": {
         "psr-4": {
@@ -51,13 +57,14 @@
     "scripts": {
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage"
+        "test-coverage": "vendor/bin/pest --coverage",
+        "pint": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse --no-progress"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "pestphp/pest-plugin": true
         }
     },
     "extra": {

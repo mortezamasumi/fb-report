@@ -10,24 +10,33 @@ use Illuminate\Support\Facades\View;
 
 class ReportPage extends Page
 {
-    protected string $view                          = 'fb-report::filament.pages.report';
-    protected static string|array $routeMiddleware  = 'signed';
+    protected string $view = 'fb-report::filament.pages.report';
+
+    protected static string|array $routeMiddleware = 'signed';
+
     protected static bool $shouldRegisterNavigation = false;
-    protected static ?string $slug                  = 'report';
+
+    protected static ?string $slug = 'report';
 
     protected const RTL_LANGUAGES = ['fa', 'ar', 'ur', 'he'];
 
     public $base64Pdf;
+
     protected ?Reporter $reporter = null;
+
     protected ?array $reportData;
+
     protected ?array $reportConfig;
+
     protected ?string $returnUrl = null;
+
     protected string $lang;
+
     protected string $dir;
 
     public function mount(): void
     {
-        if (!$this->initializeReport()) {
+        if (! $this->initializeReport()) {
             redirect($this->returnUrl);
 
             return;
@@ -56,17 +65,17 @@ class ReportPage extends Page
      */
     protected function initializeReport(): bool
     {
-        $this->returnUrl    = request()->get('returnUrl');
-        $this->reporter     = Cache::get(request()->get('reporter'));
-        $this->reportData   = Cache::get(request()->get('reportData'));
+        $this->returnUrl = request()->get('returnUrl');
+        $this->reporter = Cache::get(request()->get('reporter'));
+        $this->reportData = Cache::get(request()->get('reportData'));
         $this->reportConfig = Cache::get(request()->get('reportConfig'));
 
-        if (!$this->reporter) {
+        if (! $this->reporter) {
             return false;
         }
 
         $this->lang = $this->reportConfig['lang'] ?? App::getLocale();
-        $this->dir  = $this->reportConfig['dir']
+        $this->dir = $this->reportConfig['dir']
             ?? (in_array($this->lang, self::RTL_LANGUAGES) ? 'rtl' : 'ltr');
 
         return true;
@@ -79,8 +88,8 @@ class ReportPage extends Page
     {
         $data = [
             ...$this->reportConfig,
-            'lang'       => $this->lang,
-            'dir'        => $this->dir,
+            'lang' => $this->lang,
+            'dir' => $this->dir,
             '__reporter' => $this->reporter,
         ];
 
@@ -110,30 +119,11 @@ class ReportPage extends Page
      */
     protected function generatePdfReport(): void
     {
-        // dd('oh');
         ini_set('pcre.backtrack_limit', 10000000);
         ini_set('memory_limit', '512M');
 
         $config = array_merge($this->getDefaultMpdfConfig(), $this->reportConfig);
-        $pdf    = new LaravelMpdf($config);
-
-        // $this->reporter->mpdfBeforHtml($pdf);
-
-        // $htmlContent = View::make(
-        //     view: $this->reporter->getReportView(),
-        //     data: $this->reportData,
-        //     mergeData: $this->getReportViewData($pdf),
-        // )->render();
-
-        // dd($htmlContent);
-
-        // $chunks = $this->splitHTMLIntoChunks($htmlContent, 50000);  // 50KB chunks
-
-        // foreach ($chunks as $chunk) {
-        //     $pdf->getMpdf()->WriteHTML($chunk);
-        // }
-
-        // $this->reporter->mpdfAfterHtml($pdf);
+        $pdf = new LaravelMpdf($config);
 
         $htmlBeforBodyOpen = View::make(
             view: $this->reporter->getReportView(),
@@ -164,175 +154,30 @@ class ReportPage extends Page
 
         $mpdf->WriteHTML('</div></body></html>');
 
-        // SUGGESTION: Move this password to .env and config
-        if (!App::environment('testing')) {
-            $password = config('fb-report.pdf_password', 'SG@%$ashgf236dShsd&*7253');
+        if (! App::environment('testing')) {
+            $password = config('fb-report.pdf_password');
             $mpdf->SetProtection(['copy', 'print'], '', $password);
         }
 
         $this->base64Pdf = base64_encode($pdf->output());
     }
 
-    private function writeChunkedHtmlToPdf($mpdf, string $htmlContent): void
-    {
-        // Explode uses zero regex, so it bypasses PCRE limits entirely
-        $chunks = explode('', $htmlContent);
-
-        foreach ($chunks as $chunk) {
-            if (!empty(trim($chunk))) {
-                $mpdf->WriteHTML($chunk);
-            }
-        }
-    }
-
     /**
      * Returns the default configuration for mPDF.
-     * SUGGESTION: Move this to a dedicated config/fb-report.php file.
      */
     protected function getDefaultMpdfConfig(): array
     {
         return [
-            'mode'             => 'utf-8',
-            'format'           => 'A4',
-            'orientation'      => 'P',
-            'direction'        => $this->dir,
-            'margin_header'    => 5,
-            'margin_footer'    => 5,
-            'margin_top'       => 5,
+            'mode' => 'utf-8',
+            'format' => config('fb-report.pdf_format', 'A4'),
+            'orientation' => config('fb-report.pdf_orientation', 'P'),
+            'direction' => $this->dir,
+            'margin_header' => 5,
+            'margin_footer' => 5,
+            'margin_top' => 5,
             'useSubstitutions' => true,
-            // SUGGESTION: Make this path configurable
-            'custom_font_dir'  => __DIR__ . '/../../resources/fonts/',
-            'custom_font_data' => [
-                'gandom'       => [
-                    'R'          => 'Gandom.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'homa'         => [
-                    'R'          => 'Homa.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'iran'         => [
-                    'R'          => 'Iran.ttf',
-                    'B'          => 'Iran-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'keyhan'       => [
-                    'R'          => 'Keyhan.ttf',
-                    'B'          => 'Keyhan-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'keyhannavaar' => [
-                    'R'          => 'Keyhan-Navaar.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'keyhanpook'   => [
-                    'R'          => 'Keyhan-Pook.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'keyhansayeh'  => [
-                    'R'          => 'Keyhan-Sayeh.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'koodak'       => [
-                    'R'          => 'Koodak.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'lalezar'      => [
-                    'R'          => 'Lalezar.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'nastaliq'     => [
-                    'R'          => 'Nastaliq.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'nazli'        => [
-                    'R'          => 'Nazli.ttf',
-                    'B'          => 'Nazli-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'parastoo'     => [
-                    'R'          => 'Parastoo.ttf',
-                    'B'          => 'Parastoo-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'sahel'        => [
-                    'R'          => 'Sahel.ttf',
-                    'B'          => 'Sahel-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'shabnam'      => [
-                    'R'          => 'Shabnam.ttf',
-                    'B'          => 'Shabnam-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'shafigh'      => [
-                    'R'          => 'Shafigh.ttf',
-                    'B'          => 'Shafigh-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'vahid'        => [
-                    'R'          => 'Vahid.ttf',
-                    'B'          => 'Vahid-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'vazir'        => [
-                    'R'          => 'Vazirmatn.ttf',
-                    'B'          => 'Vazirmatn-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'yaghut'       => [
-                    'R'          => 'Yaghut.ttf',
-                    'B'          => 'Yaghut-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'yas'          => [
-                    'R'          => 'Yas.ttf',
-                    'B'          => 'Yas-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'yermook'      => [
-                    'R'          => 'Yermook.ttf',
-                    'B'          => 'Yermook-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'zar'          => [
-                    'R'          => 'Zar.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'ziba'         => [
-                    'R'          => 'Ziba.ttf',
-                    'B'          => 'Ziba-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-                'titr'         => [
-                    'R'          => 'Titr.ttf',
-                    'B'          => 'Titr-Bold.ttf',
-                    'useKashida' => 75,
-                    'useOTL'     => 0xFF,
-                ],
-            ],
+            'custom_font_dir' => config('fb-report.font_dir') ?: __DIR__.'/../../resources/fonts/',
+            'custom_font_data' => config('fb-report.fonts'),
         ];
     }
 }

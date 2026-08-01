@@ -2,17 +2,17 @@
 
 namespace Mortezamasumi\FbReport\Reports;
 
+use Closure;
 use Filament\Support\Components\Component;
 use Filament\Support\Concerns\CanAggregateRelatedModels;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Number;
 use Mortezamasumi\FbReport\Concerns\CanFormatState;
 use Mortezamasumi\FbReport\Concerns\HasCellState;
-use Closure;
 
 class ReportColumn extends Component
 {
@@ -25,13 +25,21 @@ class ReportColumn extends Component
     // -------------------------------------------------------------------------
 
     protected string $name;
+
     protected string|Closure|null $label = null;
+
     protected ?Reporter $reporter = null;
+
     protected bool|Closure $isEnabledByDefault = true;
+
     protected string $evaluationIdentifier = 'column';
+
     protected int $span = 1;
+
     protected ?string $align = null;
+
     protected ?string $style = null;
+
     protected $shouldTranslateLabel = false;
 
     // -------------------------------------------------------------------------
@@ -77,7 +85,6 @@ class ReportColumn extends Component
     public function getLabel(): string|Htmlable|null
     {
         $label = $this->evaluate($this->label) ?? (string) str($this->getName())
-            // ->beforeLast('.') // <-- BUG FIX: Removed this line
             ->afterLast('.')
             ->kebab()
             ->replace(['-', '_'], ' ')
@@ -131,7 +138,6 @@ class ReportColumn extends Component
     {
         $align = $this->evaluate($this->align) ?? 'center';
 
-        // <-- REFACTOR: Simplified alignment logic
         if ($align === 'start') {
             return $this->isRtl() ? 'right' : 'left';
         }
@@ -188,9 +194,8 @@ class ReportColumn extends Component
     public function localeDigit(?string $forceLocale = null): static
     {
         $this->formatStateUsing(
-            // <-- REFACTOR: More robust type check
             static fn (mixed $state) => (is_string($state) || is_int($state) || is_float($state))
-                ? __digit($state, $forceLocale)
+                ? __digit((string) $state, $forceLocale)
                 : $state
         );
 
@@ -307,7 +312,6 @@ class ReportColumn extends Component
 
     /**
      * Check if the current locale is RTL.
-     * SUGGESTION: Move this to a central trait or helper.
      */
     private function isRtl(): bool
     {

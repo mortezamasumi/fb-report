@@ -2,23 +2,34 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
+use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Closure;
 
 trait CanFormatState
 {
     protected ?Closure $formatStateUsing = null;
+
     protected int|Closure|null $characterLimit = null;
+
     protected string|Closure|null $characterLimitEnd = null;
+
     protected int|Closure|null $wordLimit = null;
+
     protected string|Closure|null $wordLimitEnd = null;
+
     protected string|Closure|null $prefix = null;
+
     protected string|Closure|null $suffix = null;
+
     protected bool $isListedAsJson = false;
+
     protected bool $isBulleted = false;
+
     protected bool $isFlattenState = false;
+
     protected float $flattenDepth;
+
     protected bool $isListWithLineBreaks = false;
 
     public function limit(int|Closure|null $length = 100, string|Closure|null $end = '...'): static

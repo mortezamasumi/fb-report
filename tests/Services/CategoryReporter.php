@@ -37,7 +37,7 @@ class CategoryReporter extends Reporter
 
     public function getBeforeHtml($data): string|Htmlable
     {
-        return new HtmlString($this->getRecord()->category->group->title . ' ' . $this->getRecord()->category->title);
+        return new HtmlString($this->getRecord()->category->group->title.' '.$this->getRecord()->category->title);
     }
 
     public static function getColumns(): array

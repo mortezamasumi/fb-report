@@ -1,0 +1,361 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - src
+    tmpDir: build/phpstan
+    ignoreErrors:
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:applyQueryModifications\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:applyQueryModifications\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:getActionRecords\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:getActionRecords\(\) should return Illuminate\\Support\\Collection but returns Illuminate\\Support\\Collection\|Illuminate\\Support\\LazyCollection\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:getAuxRecord\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:getAuxRecord\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:getReportFormSchema\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:handleReportAction\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:options\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:parseSelectedColumns\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:parseSelectedColumns\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:useRecord\(\) has parameter \$record with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:useRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^PHPDoc tag @var with type Mortezamasumi\\FbReport\\Reports\\Reporter is not subtype of native type string\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, string given\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:\$auxRecord type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:\$auxRecord with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Unable to resolve the template type TKey in call to function collect$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Unable to resolve the template type TValue in call to function collect$#'
+          path: src/Actions/ReportAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:applyQueryModifications\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:applyQueryModifications\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getActionHeading\(\) should return string but returns string\|null\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getActionLabel\(\) should return string but returns string\|null\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getActionRecords\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getActionRecords\(\) should return Illuminate\\Support\\Collection but returns Illuminate\\Support\\Collection\|Illuminate\\Support\\LazyCollection\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getAuxRecord\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getAuxRecord\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:getReportFormSchema\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:handleReportAction\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:options\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:parseSelectedColumns\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:parseSelectedColumns\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:useRecord\(\) has parameter \$record with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:useRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^PHPDoc tag @var with type Mortezamasumi\\FbReport\\Reports\\Reporter is not subtype of native type string\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<T of object\>\|T of object, string given\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:\$auxRecord type has no value type specified in iterable type array\.$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Actions\\ReportBulkAction\:\:\$auxRecord with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Unable to resolve the template type TKey in call to function collect$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Unable to resolve the template type TValue in call to function collect$#'
+          path: src/Actions/ReportBulkAction.php
+        - message: '#^Class Mortezamasumi\\FbReport\\Facades\\FbReport has PHPDoc tag @method for method generateReport\(\) parameter \#2 \$reportData with no value type specified in iterable type array\.$#'
+          path: src/Facades/FbReport.php
+        - message: '#^Class Mortezamasumi\\FbReport\\Facades\\FbReport has PHPDoc tag @method for method generateReport\(\) parameter \#3 \$reportConfig with no value type specified in iterable type array\.$#'
+          path: src/Facades/FbReport.php
+        - message: '#^Cannot call method getReturnUrl\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
+          path: src/FbReport.php
+        - message: '#^Method Mortezamasumi\\FbReport\\FbReport\:\:generateReport\(\) has parameter \$reportConfig with no value type specified in iterable type array\.$#'
+          path: src/FbReport.php
+        - message: '#^Method Mortezamasumi\\FbReport\\FbReport\:\:generateReport\(\) has parameter \$reportData with no value type specified in iterable type array\.$#'
+          path: src/FbReport.php
+        - message: '#^Method Mortezamasumi\\FbReport\\FbReportServiceProvider\:\:getAssets\(\) has invalid return type Mortezamasumi\\FbReport\\Asset\.$#'
+          path: src/FbReportServiceProvider.php
+        - message: '#^Method Mortezamasumi\\FbReport\\FbReportServiceProvider\:\:getAssets\(\) should return array\<Mortezamasumi\\FbReport\\Asset\> but returns array\<int, Filament\\Support\\Assets\\Css\>\.$#'
+          path: src/FbReportServiceProvider.php
+        - message: '#^Parameter \#1 \$assets of static method Filament\\Support\\Facades\\FilamentAsset\:\:register\(\) expects array\<Filament\\Support\\Assets\\Asset\>, array\<Mortezamasumi\\FbReport\\Asset\> given\.$#'
+          path: src/FbReportServiceProvider.php
+        - message: '#^Parameter \#2 \$package of static method Filament\\Support\\Facades\\FilamentAsset\:\:register\(\) expects string, string\|null given\.$#'
+          path: src/FbReportServiceProvider.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\LaravelMpdf\:\:__construct\(\) has parameter \$config with no type specified\.$#'
+          path: src/Reports/LaravelMpdf.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Mpdf\:\:aliasReplace\(\) should return string but returns string\|null\.$#'
+          path: src/Reports/Mpdf.php
+        - message: '#^Parameter \#1 \$search of function str_replace expects array\<string\>\|string, array\<int, int\> given\.$#'
+          path: src/Reports/Mpdf.php
+        - message: '#^Cannot call method getColumnsSpan\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Cannot call method getOptions\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Expression on left side of \?\? is not nullable\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:applyEagerLoading\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:applyEagerLoading\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:applyRelationshipAggregates\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:applyRelationshipAggregates\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:flattenState\(\) has parameter \$flattenDepth with no type specified\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:getFormattedState\(\) should return string\|null but returns string\|false\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:getRelationship\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\Relation does not specify its types\: TRelatedModel, TDeclaringModel, TResult$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:getSpanPercentage\(\) should return string but returns string\|false\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:hasRelationship\(\) has parameter \$record with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#1 \$key of function array_key_exists expects int\|string, string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#1 \$relation of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withAvg\(\) expects array\|string, array\<int\|string, Closure\|string\>\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#1 \$relation of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withMax\(\) expects array\|string, array\<int\|string, Closure\|string\>\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#1 \$relation of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withMin\(\) expects array\|string, array\<int\|string, Closure\|string\>\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#1 \$relation of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withSum\(\) expects array\|string, array\<int\|string, Closure\|string\>\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#1 \$relations of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:with\(\) expects array\<array\|\(Closure\(Illuminate\\Database\\Eloquent\\Relations\\Relation\<\*, \*, \*\>\)\: mixed\)\|string\>\|string, array\{string\|null\} given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#2 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withAvg\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, Illuminate\\Contracts\\Database\\Query\\Expression\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#2 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withMax\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, Illuminate\\Contracts\\Database\\Query\\Expression\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#2 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withMin\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, Illuminate\\Contracts\\Database\\Query\\Expression\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#2 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withSum\(\) expects Illuminate\\Contracts\\Database\\Query\\Expression\|string, Illuminate\\Contracts\\Database\\Query\\Expression\|string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#2 \$depth of static method Illuminate\\Support\\Arr\:\:flatten\(\) expects int, float given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#2 \$string of function explode expects string, string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#3 \$end of static method Illuminate\\Support\\Str\:\:limit\(\) expects string, string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Parameter \#3 \$end of static method Illuminate\\Support\\Str\:\:words\(\) expects string, string\|null given\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:\$align \(string\|null\) does not accept Closure\|string\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:\$shouldTranslateLabel has no type specified\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:\$span \(int\) does not accept Closure\|int\|null\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportColumn\:\:\$style \(string\|null\) does not accept Closure\|string\.$#'
+          path: src/Reports/ReportColumn.php
+        - message: '#^Call to an undefined method Mortezamasumi\\FbReport\\Reports\\LaravelMpdf\:\:SetProtection\(\)\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Call to an undefined method Mortezamasumi\\FbReport\\Reports\\LaravelMpdf\:\:WriteHTML\(\)\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Cannot call method getReportView\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Cannot call method getShowHtml\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Cannot call method makeContent\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:getDefaultMpdfConfig\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:getReportViewData\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Only iterables can be unpacked, array\|null given\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|null given\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Parameter \#2 \.\.\.\$arrays of function array_merge expects array, array\|null given\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Parameter \$data of static method Illuminate\\Support\\Facades\\View\:\:make\(\) expects array\|Illuminate\\Contracts\\Support\\Arrayable, array\|null given\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:\$base64Pdf has no type specified\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:\$reportConfig type has no value type specified in iterable type array\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:\$reportData type has no value type specified in iterable type array\.$#'
+          path: src/Reports/ReportPage.php
+        - message: '#^Argument of an invalid type Illuminate\\Support\\Collection\|null supplied for foreach, only iterables are supported\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:__construct\(\) has parameter \$records with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:__construct\(\) has parameter \$records with no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:__construct\(\) has parameter \$selectedColumns with no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getAfterHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getBeforeHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getCachedColumns\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getColumnsData\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getColumnsTitle\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getConfig\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getCurrentGroup\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getCurrentGroup\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getCurrentSubGroup\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getCurrentSubGroup\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getGroupAfterHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getGroupBeforeHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getGroupItems\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getHtmlHead\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getMainHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getMainHtml\(\) has parameter \$rows with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getMainHtml\(\) has parameter \$titles with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getOptionsFormComponents\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getRecord\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getRecord\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getRecords\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getRecords\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getReportDescription\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getReportFooter\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getReportHeader\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getReportTitle\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getSelectedColumns\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getStyles\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getSubGroupAfterHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getSubGroupBeforeHtml\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getSubGroupItems\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getTableRows\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getTableRowsData\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getTableRowsData\(\) should return Illuminate\\Support\\Collection but returns array\|Illuminate\\Support\\Collection\|null\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:getViewData\(\) return type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:groupAfter\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:groupAfter\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:groupBefore\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:groupBefore\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:groupLoop\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:groupLoop\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:makeContent\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:makeContent\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:modifyQuery\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:modifyQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:pageAfter\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:pageAfter\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:pageBefore\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:pageBefore\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:pageContent\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:pageContent\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setCurrentGroup\(\) has parameter \$item with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setCurrentGroup\(\) has parameter \$item with no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setCurrentSubGroup\(\) has parameter \$item with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setCurrentSubGroup\(\) has parameter \$item with no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setRecord\(\) has parameter \$record with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setRecords\(\) has parameter \$records with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:setRecords\(\) has parameter \$records with no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:subGroupAfter\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:subGroupAfter\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:subGroupBefore\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:subGroupBefore\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:subGroupLoop\(\) has parameter \$data with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Method Mortezamasumi\\FbReport\\Reports\\Reporter\:\:subGroupLoop\(\) has parameter \$mpdf with no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Parameter \#1 \$value of function count expects array\|Countable, Illuminate\\Support\\Collection\|null given\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$currentGroup type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$currentGroup with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$currentSubGroup type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$currentSubGroup with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$html has no type specified\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$options on left side of \?\? is not nullable nor uninitialized\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$record type has no value type specified in iterable type array\.$#'
+          path: src/Reports/Reporter.php
+        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\Reporter\:\:\$record with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+          path: src/Reports/Reporter.php
+        - message: '#^PHPDoc tag @mixin contains generic class Livewire\\Features\\SupportTesting\\Testable but does not specify its types\: TComponent$#'
+          path: src/Testing/TestsFbReport.php

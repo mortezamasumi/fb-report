@@ -2,22 +2,26 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
+use Closure;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
-use Closure;
-use Exception;
 
 trait HasCellState
 {
     protected mixed $defaultState = null;
+
     protected mixed $getStateUsing = null;
+
     protected string|Closure|null $separator = null;
+
     protected bool|Closure $isDistinctList = false;
+
     protected ?string $inverseRelationshipName = null;
 
     public function inverseRelationship(?string $name): static

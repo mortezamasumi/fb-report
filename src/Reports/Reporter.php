@@ -19,16 +19,26 @@ abstract class Reporter
     // -------------------------------------------------------------------------
 
     protected $html;
+
     /** @var array<ReportColumn> */
     protected array $cachedColumns;
+
     protected array|Collection|Model $record;
+
     protected static ?string $model = null;
+
     protected static string $view = 'fb-report::components.main';
+
     protected bool $showHtml = false;
+
     protected array|Collection|Model|null $currentGroup = null;
+
     protected int|string|null $currentGroupIndex = null;
+
     protected array|Collection|Model|null $currentSubGroup = null;
+
     protected int|string|null $currentSubGroupIndex = null;
+
     public static bool $selectableColumns = true;
 
     // -------------------------------------------------------------------------
@@ -39,7 +49,7 @@ abstract class Reporter
      * @param  array<string, mixed>  $options
      */
     public function __construct(
-        protected Collection $records,
+        protected array|Collection|null $records,
         protected string $returnUrl,
         protected array $selectedColumns,
         protected array $options,
@@ -152,92 +162,6 @@ abstract class Reporter
         }
     }
 
-    /* */
-    /* */
-    /* */
-    /* */
-    /* */
-    /* */
-    /* */
-
-    // public function getReportBody($data): string|Htmlable
-    // {
-    //     // $this->setRecord(collect([]));
-
-    //     $html = $this->getGroupBeforeHtml($data);
-
-    //     // if (!$this->hasGroupItems()) {
-    //     //     $html .= $this->getReportContent($data);
-    //     // } else {
-    //     $html .= $this->renderGroupLoop($data);
-    //     // }
-
-    //     return $html . $this->getGroupAfterHtml($data);
-    // }
-
-    // public function getReportContent($data): string|Htmlable
-    // {
-    //     $titles = $this->getColumnsTitle();
-    //     $rows = $this->getTableRows();
-
-    //     $before = $this->getBeforeHtml($data);
-    //     $main = $this->getMainHtml($data, $titles, $rows);
-    //     $after = $this->getAfterHtml($data);
-
-    //     return $before . $main . $after;
-    //     // return $main;
-    // }
-
-    // private function renderGroupLoop($data): string
-    // {
-    //     $html = $this->getSubGroupBeforeHtml($data);
-
-    //     if ($this->hasGroupItems()) {
-    //         $groupItems = $this->getGroupItems();
-    //         $totalGroupItems = count($groupItems);
-
-    //         foreach ($groupItems as $groupIndex => $group) {
-    //             $this->setCurrentGroup($group);
-    //             $this->setCurrentGroupIndex($groupIndex);
-
-    //             $html .= $this->renderSubGroupLoop($data);
-
-    //             if ($groupIndex < $totalGroupItems - 1) {
-    //                 $html .= '<pagebreak />';
-    //             }
-    //         }
-    //     } else {
-    //         $html .= $this->getReportContent($data);
-    //     }
-
-    //     return $html . $this->getSubGroupAfterHtml($data);
-    // }
-
-    // private function renderSubGroupLoop($data): string
-    // {
-    //     $html = '';
-
-    //     if ($this->hasSubGroupItems()) {
-    //         $subGroupItems = $this->getSubGroupItems();
-    //         $totalSubGroupItems = count($subGroupItems);
-
-    //         foreach ($subGroupItems as $subGroupIndex => $subGroup) {
-    //             $this->setCurrentSubGroup($subGroup);
-    //             $this->setCurrentSubGroupIndex($subGroupIndex);
-
-    //             $html .= $this->getReportContent($data);
-
-    //             if ($subGroupIndex < $totalSubGroupItems - 1) {
-    //                 $html .= '<pagebreak />';
-    //             }
-    //         }
-    //     } else {
-    //         $html .= $this->getReportContent($data);
-    //     }
-
-    //     return $html;
-    // }
-
     // -------------------------------------------------------------------------
     // Grouping Logic (Public API & Protected Hooks)
     // -------------------------------------------------------------------------
@@ -290,7 +214,6 @@ abstract class Reporter
 
     public function getCachedColumns(): array
     {
-        // <-- FIX: Caching now works correctly
         return $this->cachedColumns ??= array_reduce(
             static::getColumns(),
             function (array $carry, ReportColumn $column): array {
@@ -306,10 +229,9 @@ abstract class Reporter
     {
         $columns = $this->getCachedColumns();
 
-        // <-- SUGGESTION: Use collection pipeline
         return collect($this->selectedColumns)
             ->keys()
-            ->map(fn(string $column) => [
+            ->map(fn (string $column) => [
                 'width' => $columns[$column]->getSpanPercentage(),
                 'text' => $columns[$column]->getLabel(),
             ]);
@@ -323,10 +245,9 @@ abstract class Reporter
 
         $columns = $this->getCachedColumns();
 
-        // <-- SUGGESTION: Use collection pipeline
         return collect($this->selectedColumns)
             ->keys()
-            ->map(fn(string $column) => [
+            ->map(fn (string $column) => [
                 'width' => $columns[$column]->getSpanPercentage(),
                 'text' => $columns[$column]->getFormattedState(),
                 'align' => $columns[$column]->getAlign(),
@@ -337,14 +258,6 @@ abstract class Reporter
     public function getSelectedColumns(): array
     {
         return array_values(array_intersect_key($this->getCachedColumns(), $this->selectedColumns));
-
-        // $columns = $this->getCachedColumns();
-        // $data = [];
-        // foreach (array_keys($this->selectedColumns) as $column) {
-        //     $data[] = $columns[$column];
-        // }
-
-        // return $data;
     }
 
     public function getColumnsSpan(): int
@@ -378,6 +291,7 @@ abstract class Reporter
         if ($data['default_header'] ?? true) {
             return View::make('fb-report::components.header', compact('data'))->render();
         }
+
         return '';
     }
 
@@ -386,6 +300,7 @@ abstract class Reporter
         if ($data['default_footer'] ?? true) {
             return View::make('fb-report::components.footer', compact('data'))->render();
         }
+
         return '';
     }
 
@@ -438,7 +353,7 @@ abstract class Reporter
     {
         $html = $this->getGroupBeforeHtml($data);
 
-        if (!empty($html)) {
+        if (! empty($html)) {
             $mpdf->WriteHTML($html);
         }
     }
@@ -447,7 +362,7 @@ abstract class Reporter
     {
         $html = $this->getGroupAfterHtml($data);
 
-        if (!empty($html)) {
+        if (! empty($html)) {
             $mpdf->WriteHTML($html);
         }
     }
@@ -456,7 +371,7 @@ abstract class Reporter
     {
         $html = $this->getSubGroupBeforeHtml($data);
 
-        if (!empty($html)) {
+        if (! empty($html)) {
             $mpdf->WriteHTML($html);
         }
     }
@@ -465,7 +380,7 @@ abstract class Reporter
     {
         $html = $this->getSubGroupAfterHtml($data);
 
-        if (!empty($html)) {
+        if (! empty($html)) {
             $mpdf->WriteHTML($html);
         }
     }
@@ -474,7 +389,7 @@ abstract class Reporter
     {
         $html = $this->getBeforeHtml($data);
 
-        if (!empty($html)) {
+        if (! empty($html)) {
             $mpdf->WriteHTML($html);
         }
     }
@@ -483,7 +398,7 @@ abstract class Reporter
     {
         $html = $this->getAfterHtml($data);
 
-        if (!empty($html)) {
+        if (! empty($html)) {
             $mpdf->WriteHTML($html);
         }
     }

@@ -3,6 +3,8 @@
 namespace Mortezamasumi\FbReport\Reports;
 
 use Mccarlosen\LaravelMpdf\LaravelMpdf as BaseLaravelMpdf;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
 
 class LaravelMpdf extends BaseLaravelMpdf
 {
@@ -10,11 +12,11 @@ class LaravelMpdf extends BaseLaravelMpdf
     {
         $this->config = $config;
 
-        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $defaultConfig = (new ConfigVariables)->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
         $tempDir = $defaultConfig['tempDir'];
 
-        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $defaultFontConfig = (new FontVariables)->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
         $configGlobal = [
             'mode' => $this->getConfig('mode'),
@@ -28,10 +30,10 @@ class LaravelMpdf extends BaseLaravelMpdf
             'margin_bottom' => $this->getConfig('margin_bottom'),
             'margin_header' => $this->getConfig('margin_header'),
             'margin_footer' => $this->getConfig('margin_footer'),
-            'fontDir' => array_merge($fontDirs, [
-                $this->getConfig('custom_font_dir')
-            ]),
-            'fontdata' => array_merge($fontData, $this->getConfig('custom_font_data')),
+            'fontDir' => array_merge($fontDirs, array_filter([
+                $this->getConfig('custom_font_dir'),
+            ])),
+            'fontdata' => array_merge($fontData, (array) $this->getConfig('custom_font_data')),
             'autoScriptToLang' => $this->getConfig('auto_language_detection'),
             'autoLangToFont' => $this->getConfig('auto_language_detection'),
             'tempDir' => ($this->getConfig('temp_dir')) ?: $tempDir,

@@ -2,7 +2,9 @@
 
 namespace Mortezamasumi\FbReport\Facades;
 
+use Closure;
 use Illuminate\Support\Facades\Facade;
+use Mortezamasumi\FbReport\Reports\Reporter;
 
 /**
  * @method static void generateReport(?Reporter $reporter = null, array|Closure $reportData = [], array $reportConfig = [])

@@ -2,14 +2,14 @@
 
 namespace Mortezamasumi\FbReport;
 
+use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Mortezamasumi\FbReport\Reports\Reporter;
 use Mortezamasumi\FbReport\Reports\ReportPage;
-use Closure;
 
 class FbReport
 {

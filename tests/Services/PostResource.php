@@ -20,15 +20,15 @@ class PostResource extends Resource
             ])
             ->recordActions([
                 ReportAction::make('record-report')
-                    ->reporter(PostReporter::class)
+                    ->reporter(PostReporter::class),
             ])
             ->toolbarActions([
                 ReportBulkAction::make('bulk-report')
-                    ->reporter(PostReporter::class)
+                    ->reporter(PostReporter::class),
             ])
             ->headerActions([
                 ReportAction::make('header-report')
-                    ->reporter(PostReporter::class)
+                    ->reporter(PostReporter::class),
             ]);
     }
 

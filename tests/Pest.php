@@ -2,6 +2,7 @@
 
 use Illuminate\Testing\TestResponse;
 use Mortezamasumi\FbReport\Tests\TestCase;
+use Smalot\PdfParser\Parser;
 use Symfony\Component\DomCrawler\Crawler;
 
 uses(TestCase::class)->in(__DIR__);
@@ -25,9 +26,9 @@ function getDecodedIframeContent(TestResponse $response): string
     $decodedContent = base64_decode($parts[1]);
     $test->assertNotFalse($decodedContent, 'Failed to base64_decode the iframe content.');
 
-    $parser = new Smalot\PdfParser\Parser();
+    $parser = new Parser;
 
-    $pdfPath = storage_path('app/tmp_' . uniqid() . '.pdf');
+    $pdfPath = storage_path('app/tmp_'.uniqid().'.pdf');
     file_put_contents($pdfPath, $decodedContent);
 
     $pdf = $parser->parseFile($pdfPath);

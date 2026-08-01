@@ -2,6 +2,7 @@
 
 namespace Mortezamasumi\FbReport\Concerns;
 
+use Closure;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Checkbox;
@@ -20,7 +21,6 @@ use Mortezamasumi\FbReport\Actions\ReportAction;
 use Mortezamasumi\FbReport\Actions\ReportBulkAction;
 use Mortezamasumi\FbReport\Reports\ReportColumn;
 use Mortezamasumi\FbReport\Reports\Reporter;
-use Closure;
 use ReflectionClass;
 
 trait CanCreateReport
@@ -31,13 +31,20 @@ trait CanCreateReport
 
     /** @var class-string<Reporter> */
     protected string $reporter;
+
     protected bool|Closure $selectableColumns = true;
-    protected bool|Closure $hasForceUseReporterModel = false;  // <-- FIX: Typo
+
+    protected bool|Closure $hasForceUseReporterModel = false;
+
     protected bool|Closure $hasRequiredConfirmation = false;
+
     /** @var array<string, mixed> | Closure */
     protected array|Closure $options = [];
+
     protected ?Closure $modifyQueryUsing = null;
+
     protected Closure|string|null $auxModel = null;
+
     protected Closure|Model|Collection|array|null $auxRecord = null;
 
     // -------------------------------------------------------------------------
@@ -95,7 +102,7 @@ trait CanCreateReport
 
     public function forceUseReporterModel(bool|Closure $condition = true): static
     {
-        $this->hasForceUseReporterModel = $condition;  // <-- FIX: Typo
+        $this->hasForceUseReporterModel = $condition;
 
         return $this;
     }
@@ -121,13 +128,11 @@ trait CanCreateReport
     protected function configureModal(): void
     {
         $this->label(
-            fn (ReportAction|ReportBulkAction $action, Component $livewire): string
-                => __('fb-report::fb-report.label', ['label' => $action->getActionLabel($livewire)])
+            fn (ReportAction|ReportBulkAction $action, Component $livewire): string => __('fb-report::fb-report.label', ['label' => $action->getActionLabel($livewire)])
         );
 
         $this->modalHeading(
-            fn (ReportAction|ReportBulkAction $action, Component $livewire): string
-                => __('fb-report::fb-report.heading', ['heading' => $action->getActionHeading($livewire)])
+            fn (ReportAction|ReportBulkAction $action, Component $livewire): string => __('fb-report::fb-report.heading', ['heading' => $action->getActionHeading($livewire)])
         );
 
         $this->modalSubmitActionLabel(__('fb-report::fb-report.action'));
@@ -150,15 +155,13 @@ trait CanCreateReport
 
     protected function configureForm(): void
     {
-        $this->form(fn (ReportAction|ReportBulkAction $action): array
-            => $this->getReportFormSchema($action));
+        $this->form(fn (ReportAction|ReportBulkAction $action): array => $this->getReportFormSchema($action));
     }
 
     protected function configureAction(): void
     {
         $this->action(
-            fn (ReportAction|ReportBulkAction $action, array $data, Component $livewire)
-                => $this->handleReportAction($action, $data, $livewire)
+            fn (ReportAction|ReportBulkAction $action, array $data, Component $livewire) => $this->handleReportAction($action, $data, $livewire)
         );
     }
 
@@ -396,6 +399,6 @@ trait CanCreateReport
 
     public function hasForceUseReporterModel(): bool
     {
-        return (bool) $this->evaluate($this->hasForceUseReporterModel);  // <-- FIX: Typo
+        return (bool) $this->evaluate($this->hasForceUseReporterModel);
     }
 }
