@@ -11,7 +11,7 @@ uses(TestCase::class)->in(__DIR__);
 function getDecodedIframeContent(TestResponse $response): string
 {
     $crawler = new Crawler($response->getContent());
-    $iframeNode = $crawler->filter('iframe');
+    $iframeNode = $crawler->filterXPath('//iframe');
 
     // Get the current test case to run assertions
     $test = test();
