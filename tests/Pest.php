@@ -2,6 +2,7 @@
 
 use Illuminate\Testing\TestResponse;
 use Mortezamasumi\FbReport\Tests\TestCase;
+use Normalizer;
 use Smalot\PdfParser\Parser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -37,5 +38,5 @@ function getDecodedIframeContent(TestResponse $response): string
 
     unlink($pdfPath);
 
-    return $text;
+    return Normalizer::normalize($text, Normalizer::FORM_KC);
 }
