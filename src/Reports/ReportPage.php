@@ -24,9 +24,11 @@ class ReportPage extends Page
 
     protected ?Reporter $reporter = null;
 
-    protected ?array $reportData;
+    /** @var array<string, mixed> */
+    protected array $reportData = [];
 
-    protected ?array $reportConfig;
+    /** @var array<string, mixed> */
+    protected array $reportConfig = [];
 
     protected ?string $returnUrl = null;
 
@@ -67,8 +69,8 @@ class ReportPage extends Page
     {
         $this->returnUrl = request()->get('returnUrl');
         $this->reporter = Cache::get(request()->get('reporter'));
-        $this->reportData = Cache::get(request()->get('reportData'));
-        $this->reportConfig = Cache::get(request()->get('reportConfig'));
+        $this->reportData = Cache::get(request()->get('reportData')) ?? [];
+        $this->reportConfig = Cache::get(request()->get('reportConfig')) ?? [];
 
         if (! $this->reporter) {
             return false;

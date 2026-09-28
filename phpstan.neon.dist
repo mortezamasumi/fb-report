@@ -183,19 +183,7 @@ parameters:
           path: src/Reports/ReportPage.php
         - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:getReportViewData\(\) return type has no value type specified in iterable type array\.$#'
           path: src/Reports/ReportPage.php
-        - message: '#^Only iterables can be unpacked, array\|null given\.$#'
-          path: src/Reports/ReportPage.php
-        - message: '#^Parameter \#1 \.\.\.\$arrays of function array_merge expects array, array\|null given\.$#'
-          path: src/Reports/ReportPage.php
-        - message: '#^Parameter \#2 \.\.\.\$arrays of function array_merge expects array, array\|null given\.$#'
-          path: src/Reports/ReportPage.php
-        - message: '#^Parameter \$data of static method Illuminate\\Support\\Facades\\View\:\:make\(\) expects array\|Illuminate\\Contracts\\Support\\Arrayable, array\|null given\.$#'
-          path: src/Reports/ReportPage.php
         - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:\$base64Pdf has no type specified\.$#'
-          path: src/Reports/ReportPage.php
-        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:\$reportConfig type has no value type specified in iterable type array\.$#'
-          path: src/Reports/ReportPage.php
-        - message: '#^Property Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:\$reportData type has no value type specified in iterable type array\.$#'
           path: src/Reports/ReportPage.php
         - message: '#^Argument of an invalid type Illuminate\\Support\\Collection\|null supplied for foreach, only iterables are supported\.$#'
           path: src/Reports/Reporter.php
