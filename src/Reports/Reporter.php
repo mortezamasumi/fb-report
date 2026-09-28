@@ -116,12 +116,15 @@ abstract class Reporter
         $this->groupAfter($mpdf, $data);
     }
 
-    public function reportAfter($mpdf, $data): void
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function reportAfter(LaravelMpdf $mpdf, array $data): void
     {
         $html = $this->getReportAfterHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $mpdf->writeHtml($html instanceof Htmlable ? $html->toHtml() : $html);
         }
     }
 
@@ -358,7 +361,10 @@ abstract class Reporter
         return '';
     }
 
-    public function getReportAfterHtml($data): string|Htmlable
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function getReportAfterHtml(array $data): string|Htmlable
     {
         return '';
     }

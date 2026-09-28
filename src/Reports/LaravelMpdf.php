@@ -8,6 +8,11 @@ use Mpdf\Config\FontVariables;
 
 class LaravelMpdf extends BaseLaravelMpdf
 {
+    public function writeHtml(string $html): void
+    {
+        $this->mpdf->WriteHTML($html);
+    }
+
     public function __construct($config = [])
     {
         $this->config = $config;
