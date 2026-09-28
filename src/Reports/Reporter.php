@@ -116,6 +116,15 @@ abstract class Reporter
         $this->groupAfter($mpdf, $data);
     }
 
+    public function reportAfter($mpdf, $data): void
+    {
+        $html = $this->getReportAfterHtml($data);
+
+        if (! empty($html)) {
+            $mpdf->WriteHTML($html);
+        }
+    }
+
     private function groupLoop($mpdf, $data): void
     {
         $this->subGroupBefore($mpdf, $data);
@@ -345,6 +354,11 @@ abstract class Reporter
     }
 
     public function getAfterHtml($data): string|Htmlable
+    {
+        return '';
+    }
+
+    public function getReportAfterHtml($data): string|Htmlable
     {
         return '';
     }

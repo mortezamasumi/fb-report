@@ -144,13 +144,13 @@ class ReportPage extends Page
         $mpdf->WriteHTML('<div class="container">');
 
         /** this will create pages and write it directly to mpdf by WriteHtml */
-        $this->reporter->makeContent(
-            $mpdf,
-            array_merge(
-                $this->reportData,
-                $this->getReportViewData($pdf)
-            )
+        $reportData = array_merge(
+            $this->reportData,
+            $this->getReportViewData($pdf)
         );
+
+        $this->reporter->makeContent($mpdf, $reportData);
+        $this->reporter->reportAfter($mpdf, $reportData);
 
         $mpdf->WriteHTML('</div></body></html>');
 
