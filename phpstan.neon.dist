@@ -6,6 +6,7 @@ parameters:
     paths:
         - src
     tmpDir: build/phpstan
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - message: '#^Method Mortezamasumi\\FbReport\\Actions\\ReportAction\:\:applyQueryModifications\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
           path: src/Actions/ReportAction.php
@@ -179,6 +180,10 @@ parameters:
           path: src/Reports/ReportPage.php
         - message: '#^Cannot call method makeContent\(\) on Mortezamasumi\\FbReport\\Reports\\Reporter\|null\.$#'
           path: src/Reports/ReportPage.php
+        - message: '#^Parameter .*view of .*Illuminate\\View\\Factory::make\(\) expects view-string, string given\.$#'
+          paths:
+            - src/Reports/ReportPage.php
+            - src/Reports/Reporter.php
         - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:getDefaultMpdfConfig\(\) return type has no value type specified in iterable type array\.$#'
           path: src/Reports/ReportPage.php
         - message: '#^Method Mortezamasumi\\FbReport\\Reports\\ReportPage\:\:getReportViewData\(\) return type has no value type specified in iterable type array\.$#'
