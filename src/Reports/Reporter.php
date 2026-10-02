@@ -97,7 +97,7 @@ abstract class Reporter
     // Main Report Rendering
     // -------------------------------------------------------------------------
 
-    public function pageContent($mpdf, $data): void
+    public function pageContent(Mpdf $mpdf, array $data): void
     {
         $titles = $this->getColumnsTitle();
         $rows = $this->getTableRows();
@@ -107,7 +107,7 @@ abstract class Reporter
         $this->pageAfter($mpdf, $data);
     }
 
-    public function makeContent($mpdf, $data): void
+    public function makeContent(Mpdf $mpdf, array $data): void
     {
         $this->groupBefore($mpdf, $data);
 
@@ -119,16 +119,16 @@ abstract class Reporter
     /**
      * @param  array<string, mixed>  $data
      */
-    public function reportAfter(LaravelMpdf $mpdf, array $data): void
+    public function reportAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getReportAfterHtml($data);
 
         if (! empty($html)) {
-            $mpdf->writeHtml($html instanceof Htmlable ? $html->toHtml() : $html);
+            $mpdf->WriteHTML($html instanceof Htmlable ? $html->toHtml() : $html);
         }
     }
 
-    private function groupLoop($mpdf, $data): void
+    private function groupLoop(Mpdf $mpdf, array $data): void
     {
         $this->subGroupBefore($mpdf, $data);
 
@@ -153,7 +153,7 @@ abstract class Reporter
         $this->subGroupAfter($mpdf, $data);
     }
 
-    private function subGroupLoop($mpdf, $data): void
+    private function subGroupLoop(Mpdf $mpdf, array $data): void
     {
         if ($this->hasSubGroupItems()) {
             $subGroupItems = $this->getSubGroupItems();
@@ -288,17 +288,17 @@ abstract class Reporter
     // HTML / View Hooks (To be overridden)
     // -------------------------------------------------------------------------
 
-    public function getStyles($data): string|Htmlable
+    public function getStyles(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getHtmlHead($data): string|Htmlable
+    public function getHtmlHead(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getReportHeader($data): string|Htmlable
+    public function getReportHeader(array $data): string|Htmlable
     {
         if ($data['default_header'] ?? true) {
             return View::make('fb-report::components.header', compact('data'))->render();
@@ -307,7 +307,7 @@ abstract class Reporter
         return '';
     }
 
-    public function getReportFooter($data): string|Htmlable
+    public function getReportFooter(array $data): string|Htmlable
     {
         if ($data['default_footer'] ?? true) {
             return View::make('fb-report::components.footer', compact('data'))->render();
@@ -316,47 +316,47 @@ abstract class Reporter
         return '';
     }
 
-    public function getReportTitle($data): string|Htmlable
+    public function getReportTitle(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getReportDescription($data): string|Htmlable
+    public function getReportDescription(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getGroupBeforeHtml($data): string|Htmlable
+    public function getGroupBeforeHtml(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getGroupAfterHtml($data): string|Htmlable
+    public function getGroupAfterHtml(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getSubGroupBeforeHtml($data): string|Htmlable
+    public function getSubGroupBeforeHtml(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getSubGroupAfterHtml($data): string|Htmlable
+    public function getSubGroupAfterHtml(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getBeforeHtml($data): string|Htmlable
+    public function getBeforeHtml(array $data): string|Htmlable
     {
         return '';
     }
 
-    public function getMainHtml($data, $titles, $rows): string|Htmlable
+    public function getMainHtml(array $data, Collection $titles, Collection $rows): string|Htmlable
     {
         return View::make('fb-report::components.table', compact('data', 'titles', 'rows'))->render();
     }
 
-    public function getAfterHtml($data): string|Htmlable
+    public function getAfterHtml(array $data): string|Htmlable
     {
         return '';
     }
@@ -369,7 +369,7 @@ abstract class Reporter
         return '';
     }
 
-    public function groupBefore($mpdf, $data): void
+    public function groupBefore(Mpdf $mpdf, array $data): void
     {
         $html = $this->getGroupBeforeHtml($data);
 
@@ -378,7 +378,7 @@ abstract class Reporter
         }
     }
 
-    public function groupAfter($mpdf, $data): void
+    public function groupAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getGroupAfterHtml($data);
 
@@ -387,7 +387,7 @@ abstract class Reporter
         }
     }
 
-    public function subGroupBefore($mpdf, $data): void
+    public function subGroupBefore(Mpdf $mpdf, array $data): void
     {
         $html = $this->getSubGroupBeforeHtml($data);
 
@@ -396,7 +396,7 @@ abstract class Reporter
         }
     }
 
-    public function subGroupAfter($mpdf, $data): void
+    public function subGroupAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getSubGroupAfterHtml($data);
 
@@ -405,7 +405,7 @@ abstract class Reporter
         }
     }
 
-    public function pageBefore($mpdf, $data): void
+    public function pageBefore(Mpdf $mpdf, array $data): void
     {
         $html = $this->getBeforeHtml($data);
 
@@ -414,7 +414,7 @@ abstract class Reporter
         }
     }
 
-    public function pageAfter($mpdf, $data): void
+    public function pageAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getAfterHtml($data);
 

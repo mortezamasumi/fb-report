@@ -154,7 +154,7 @@ class ReportPage extends Page
         $this->reporter->makeContent($mpdf, $reportData);
 
         if ($this->reporter) {
-            $this->reporter->reportAfter($pdf, $reportData);
+            $this->reporter->reportAfter($mpdf, $reportData);
         }
 
         $mpdf->WriteHTML('</div></body></html>');

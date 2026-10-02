@@ -192,7 +192,7 @@ trait CanFormatState
         return $this->isListWithLineBreaks;
     }
 
-    public function flattenState(bool $condition = true, $flattenDepth = INF): static
+    public function flattenState(bool $condition = true, int|float $flattenDepth = INF): static
     {
         $this->isFlattenState = $condition;
 
