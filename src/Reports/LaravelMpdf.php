@@ -13,7 +13,7 @@ class LaravelMpdf extends BaseLaravelMpdf
         $this->mpdf->WriteHTML($html);
     }
 
-    public function getMpdf(): Mpdf
+    public function getEngine(): Mpdf
     {
         return $this->mpdf;
     }

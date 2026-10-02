@@ -140,7 +140,7 @@ class ReportPage extends Page
             $htmlWithoutBodyClose = $htmlBeforBodyOpen;
         }
 
-        $mpdf = $pdf->getMpdf();
+        $mpdf = $pdf->getEngine();
 
         $mpdf->WriteHTML($htmlWithoutBodyClose);
         $mpdf->WriteHTML('<div class="container">');

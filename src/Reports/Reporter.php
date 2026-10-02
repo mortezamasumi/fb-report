@@ -97,16 +97,22 @@ abstract class Reporter
     // Main Report Rendering
     // -------------------------------------------------------------------------
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function pageContent(Mpdf $mpdf, array $data): void
     {
         $titles = $this->getColumnsTitle();
         $rows = $this->getTableRows();
 
         $this->pageBefore($mpdf, $data);
-        $mpdf->WriteHTML($this->getMainHtml($data, $titles, $rows));
+        $this->writeHtml($mpdf, $this->getMainHtml($data, $titles, $rows));
         $this->pageAfter($mpdf, $data);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function makeContent(Mpdf $mpdf, array $data): void
     {
         $this->groupBefore($mpdf, $data);
@@ -124,10 +130,13 @@ abstract class Reporter
         $html = $this->getReportAfterHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html instanceof Htmlable ? $html->toHtml() : $html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     private function groupLoop(Mpdf $mpdf, array $data): void
     {
         $this->subGroupBefore($mpdf, $data);
@@ -153,6 +162,9 @@ abstract class Reporter
         $this->subGroupAfter($mpdf, $data);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     private function subGroupLoop(Mpdf $mpdf, array $data): void
     {
         if ($this->hasSubGroupItems()) {
@@ -288,16 +300,19 @@ abstract class Reporter
     // HTML / View Hooks (To be overridden)
     // -------------------------------------------------------------------------
 
+    /** @param  array<string, mixed>  $data */
     public function getStyles(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getHtmlHead(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getReportHeader(array $data): string|Htmlable
     {
         if ($data['default_header'] ?? true) {
@@ -307,6 +322,7 @@ abstract class Reporter
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getReportFooter(array $data): string|Htmlable
     {
         if ($data['default_footer'] ?? true) {
@@ -316,46 +332,59 @@ abstract class Reporter
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getReportTitle(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getReportDescription(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getGroupBeforeHtml(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getGroupAfterHtml(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getSubGroupBeforeHtml(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getSubGroupAfterHtml(array $data): string|Htmlable
     {
         return '';
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getBeforeHtml(array $data): string|Htmlable
     {
         return '';
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  Collection<int, mixed>  $titles
+     * @param  Collection<int, mixed>  $rows
+     */
     public function getMainHtml(array $data, Collection $titles, Collection $rows): string|Htmlable
     {
         return View::make('fb-report::components.table', compact('data', 'titles', 'rows'))->render();
     }
 
+    /** @param  array<string, mixed>  $data */
     public function getAfterHtml(array $data): string|Htmlable
     {
         return '';
@@ -369,57 +398,80 @@ abstract class Reporter
         return '';
     }
 
+    private function writeHtml(Mpdf $mpdf, string|Htmlable $html): void
+    {
+        $mpdf->WriteHTML($html instanceof Htmlable ? $html->toHtml() : $html);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function groupBefore(Mpdf $mpdf, array $data): void
     {
         $html = $this->getGroupBeforeHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function groupAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getGroupAfterHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function subGroupBefore(Mpdf $mpdf, array $data): void
     {
         $html = $this->getSubGroupBeforeHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function subGroupAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getSubGroupAfterHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function pageBefore(Mpdf $mpdf, array $data): void
     {
         $html = $this->getBeforeHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function pageAfter(Mpdf $mpdf, array $data): void
     {
         $html = $this->getAfterHtml($data);
 
         if (! empty($html)) {
-            $mpdf->WriteHTML($html);
+            $this->writeHtml($mpdf, $html);
         }
     }
 
