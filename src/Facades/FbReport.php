@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 use Mortezamasumi\FbReport\Reports\Reporter;
 
 /**
- * @method static void generateReport(?Reporter $reporter = null, array|Closure $reportData = [], array $reportConfig = [])
+ * @method static void generateReport(?Reporter $reporter = null, array|Closure $reportData = [], array $reportConfig = [], bool $showLoadingScreen = true)
  *
  * @see \Mortezamasumi\FbReport\FbReport
  */

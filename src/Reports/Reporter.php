@@ -54,6 +54,7 @@ abstract class Reporter
         protected array $selectedColumns,
         protected array $options,
         protected mixed $reportPageName,
+        protected bool $showLoadingScreen = true,
     ) {
         $this->setRecords($records);
 
@@ -61,6 +62,7 @@ abstract class Reporter
             reporter: $this,
             reportData: $this->getViewData(),
             reportConfig: $this->getConfig(),
+            showLoadingScreen: $this->showLoadingScreen,
         );
     }
 

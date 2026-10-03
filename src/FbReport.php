@@ -17,6 +17,7 @@ class FbReport
         ?Reporter $reporter = null,
         array|Closure $reportData = [],
         array $reportConfig = [],
+        bool $showLoadingScreen = true,
     ): void {
         if ($reportData instanceof Closure || is_callable($reportData)) {
             $reportData = Arr::wrap($reportData());
@@ -28,11 +29,15 @@ class FbReport
         Cache::put($reportDataKey = Str::random(64), $reportData, now()->addSeconds($timeTokeep));
         Cache::put($reportConfigKey = Str::random(64), $reportConfig, now()->addSeconds($timeTokeep));
 
-        redirect(URL::signedRoute(ReportPage::getRouteName(), [
+        $routeParameters = [
             'returnUrl' => $reporter->getReturnUrl(),
             'reporter' => $reporterKey,
             'reportData' => $reportDataKey,
             'reportConfig' => $reportConfigKey,
-        ]));
+        ];
+
+        $routeParameters['showLoadingScreen'] = $showLoadingScreen;
+
+        redirect(URL::signedRoute(ReportPage::getRouteName(), $routeParameters));
     }
 }

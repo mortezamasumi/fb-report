@@ -10,6 +10,7 @@ Generate PDF reports using mPDF for Filament tables and bulk actions.
 ## Features
 
 - Generate PDF reports from Filament table data with a single `->reporter()` call.
+- Show a loading page while reports are generated; use `->withLoadingScreen(false)` to keep synchronous generation for a specific action.
 - Support for grouped and sub-grouped data across multiple pages.
 - Persian/Arabic font support out of the box with 24 bundled fonts.
 - Configurable page format, orientation, margins, and PDF protection password.
@@ -67,6 +68,14 @@ Then attach it to a Filament table or bulk action:
 ```php
 Table::make()
     ->reporter(StudentRegisterFormReporter::class)
+```
+
+Report actions and bulk actions show the loading page by default. To opt out for a report that should open synchronously:
+
+```php
+ReportAction::make('quick-report')
+    ->reporter(StudentRegisterFormReporter::class)
+    ->withLoadingScreen(false)
 ```
 
 ## Testing

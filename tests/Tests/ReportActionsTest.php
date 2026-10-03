@@ -1,7 +1,10 @@
 <?php
 
 use Filament\Actions\Testing\TestAction;
+use Livewire\Features\SupportTesting\Testable;
+use Mortezamasumi\FbReport\Reports\ReportPage as PackageReportPage;
 use Mortezamasumi\FbReport\Tests\Services\Category;
+use Mortezamasumi\FbReport\Tests\Services\FailingPostReporter;
 use Mortezamasumi\FbReport\Tests\Services\Group;
 use Mortezamasumi\FbReport\Tests\Services\ListPosts;
 use Mortezamasumi\FbReport\Tests\Services\Post;
@@ -46,6 +49,111 @@ it('can report using action in list page', function () {
                     }
                 });
         });
+});
+
+it('uses the loading screen by default and renders the loading shell first', function () {
+    /** @var Pest $this */
+    $this
+        ->actingAs(User::factory()->create())
+        ->livewire(ListPosts::class)
+        ->callAction('loading-report')
+        ->assertRedirect()
+        ->tap(function ($response) {
+            parse_str((string) parse_url($response->effects['redirect'], PHP_URL_QUERY), $query);
+
+            expect($query['showLoadingScreen'] ?? null)->toBe('1');
+
+            $this
+                ->get($response->effects['redirect'])
+                ->assertSuccessful()
+                ->assertSee('wire:init="generateReport"', false)
+                ->assertSee(__('fb-report::fb-report.preparing'))
+                ->assertDontSee('data:application/pdf');
+        });
+});
+
+it('uses the loading screen by default for bulk actions', function () {
+    $posts = Post::all()->take(2);
+
+    /** @var Pest $this */
+    $this
+        ->actingAs(User::factory()->create())
+        ->livewire(ListPosts::class)
+        ->selectTableRecords($posts->modelKeys())
+        ->assertActionVisible(TestAction::make('loading-bulk-report')->table()->bulk())
+        ->callAction(TestAction::make('loading-bulk-report')->table()->bulk())
+        ->assertRedirect()
+        ->tap(function ($response) {
+            parse_str((string) parse_url($response->effects['redirect'], PHP_URL_QUERY), $query);
+
+            expect($query['showLoadingScreen'] ?? null)->toBe('1');
+        });
+});
+
+it('allows actions to opt out of the loading screen', function () {
+    /** @var Pest $this */
+    $this
+        ->actingAs(User::factory()->create())
+        ->livewire(ListPosts::class)
+        ->callAction('synchronous-report')
+        ->assertRedirect()
+        ->tap(function ($response) {
+            parse_str((string) parse_url($response->effects['redirect'], PHP_URL_QUERY), $query);
+
+            expect($query['showLoadingScreen'] ?? null)->toBe('0');
+
+            $this
+                ->get($response->effects['redirect'])
+                ->assertSuccessful()
+                ->assertSee('data:application/pdf', false)
+                ->assertDontSee('wire:init="generateReport"', false);
+        });
+});
+
+it('generates default-loading reports in a follow-up Livewire request', function () {
+    /** @var Pest $this */
+    $response = $this
+        ->actingAs(User::factory()->create())
+        ->livewire(ListPosts::class)
+        ->callAction('loading-report')
+        ->assertRedirect();
+
+    parse_str((string) parse_url($response->effects['redirect'], PHP_URL_QUERY), $query);
+
+    $component = Testable::create(PackageReportPage::class, [], $query);
+
+    $component
+        ->assertSet('generationState', 'pending')
+        ->call('generateReport')
+        ->assertSet('generationState', 'ready');
+
+    expect($component->get('base64Pdf'))->not->toBeEmpty();
+});
+
+it('shows a retry state after generation fails and completes on retry', function () {
+    FailingPostReporter::$failNextGeneration = true;
+
+    /** @var Pest $this */
+    $response = $this
+        ->actingAs(User::factory()->create())
+        ->livewire(ListPosts::class)
+        ->callAction('failing-loading-report')
+        ->assertRedirect();
+
+    parse_str((string) parse_url($response->effects['redirect'], PHP_URL_QUERY), $query);
+
+    $component = Testable::create(PackageReportPage::class, [], $query);
+
+    $component
+        ->call('generateReport')
+        ->assertSet('generationState', 'failed')
+        ->assertSee(__('fb-report::fb-report.retry'));
+
+    $component
+        ->call('generateReport')
+        ->assertSet('generationState', 'ready');
+
+    expect($component->get('base64Pdf'))->not->toBeEmpty();
 });
 
 it('can report using action in record actions', function () {

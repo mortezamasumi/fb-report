@@ -38,6 +38,8 @@ trait CanCreateReport
 
     protected bool|Closure $hasRequiredConfirmation = false;
 
+    protected bool|Closure $loadingScreen = true;
+
     /** @var array<string, mixed> | Closure */
     protected array|Closure $options = [];
 
@@ -98,6 +100,18 @@ trait CanCreateReport
         $this->selectableColumns = $condition;
 
         return $this;
+    }
+
+    public function withLoadingScreen(bool|Closure $condition = true): static
+    {
+        $this->loadingScreen = $condition;
+
+        return $this;
+    }
+
+    public function shouldShowLoadingScreen(): bool
+    {
+        return (bool) $this->evaluate($this->loadingScreen);
     }
 
     public function forceUseReporterModel(bool|Closure $condition = true): static
@@ -226,6 +240,7 @@ trait CanCreateReport
             'selectedColumns' => $selectedColumns,
             'options' => $options,
             'reportPageName' => $action->getLabel(),
+            'showLoadingScreen' => $action->shouldShowLoadingScreen(),
         ]);
     }
 

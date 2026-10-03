@@ -13,7 +13,15 @@ class ListPosts extends ListRecords
     {
         return [
             ReportAction::make('list-report')
+                ->reporter(PostReporter::class)
+                ->withLoadingScreen(false),
+            ReportAction::make('loading-report')
                 ->reporter(PostReporter::class),
+            ReportAction::make('synchronous-report')
+                ->reporter(PostReporter::class)
+                ->withLoadingScreen(false),
+            ReportAction::make('failing-loading-report')
+                ->reporter(FailingPostReporter::class),
         ];
     }
 }

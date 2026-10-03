@@ -7,6 +7,8 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
+use Livewire\Attributes\Locked;
+use Throwable;
 
 class ReportPage extends Page
 {
@@ -20,7 +22,26 @@ class ReportPage extends Page
 
     protected const RTL_LANGUAGES = ['fa', 'ar', 'ur', 'he'];
 
-    public $base64Pdf;
+    #[Locked]
+    public ?string $base64Pdf = null;
+
+    #[Locked]
+    public ?string $reporterKey = null;
+
+    #[Locked]
+    public ?string $reportDataKey = null;
+
+    #[Locked]
+    public ?string $reportConfigKey = null;
+
+    #[Locked]
+    public ?string $returnUrl = null;
+
+    #[Locked]
+    public bool $showLoadingScreen = false;
+
+    #[Locked]
+    public string $generationState = 'pending';
 
     protected ?Reporter $reporter = null;
 
@@ -30,24 +51,50 @@ class ReportPage extends Page
     /** @var array<string, mixed> */
     protected array $reportConfig = [];
 
-    protected ?string $returnUrl = null;
-
     protected string $lang;
 
     protected string $dir;
 
     public function mount(): void
     {
+        $this->returnUrl = request()->get('returnUrl');
+        $this->reporterKey = request()->get('reporter');
+        $this->reportDataKey = request()->get('reportData');
+        $this->reportConfigKey = request()->get('reportConfig');
+        $this->showLoadingScreen = request()->boolean('showLoadingScreen', true);
+
         if (! $this->initializeReport()) {
             redirect($this->returnUrl);
 
             return;
         }
 
-        if ($this->reporter->getShowHtml()) {
-            $this->generateHtmlReport();
-        } else {
-            $this->generatePdfReport();
+        if (! $this->showLoadingScreen) {
+            $this->generateReportContent();
+            $this->generationState = 'ready';
+        }
+    }
+
+    public function hydrate(): void
+    {
+        if (! $this->initializeReport()) {
+            abort(404);
+        }
+    }
+
+    public function generateReport(): void
+    {
+        if (! $this->showLoadingScreen || $this->generationState === 'ready') {
+            return;
+        }
+
+        try {
+            $this->generationState = 'generating';
+            $this->generateReportContent();
+            $this->generationState = 'ready';
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->generationState = 'failed';
         }
     }
 
@@ -67,10 +114,9 @@ class ReportPage extends Page
      */
     protected function initializeReport(): bool
     {
-        $this->returnUrl = request()->get('returnUrl');
-        $this->reporter = Cache::get(request()->get('reporter'));
-        $this->reportData = Cache::get(request()->get('reportData')) ?? [];
-        $this->reportConfig = Cache::get(request()->get('reportConfig')) ?? [];
+        $this->reporter = $this->reporterKey ? Cache::get($this->reporterKey) : null;
+        $this->reportData = $this->reportDataKey ? Cache::get($this->reportDataKey) ?? [] : [];
+        $this->reportConfig = $this->reportConfigKey ? Cache::get($this->reportConfigKey) ?? [] : [];
 
         if (! $this->reporter) {
             return false;
@@ -81,6 +127,17 @@ class ReportPage extends Page
             ?? (in_array($this->lang, self::RTL_LANGUAGES) ? 'rtl' : 'ltr');
 
         return true;
+    }
+
+    protected function generateReportContent(): void
+    {
+        if ($this->reporter->getShowHtml()) {
+            $this->generateHtmlReport();
+
+            return;
+        }
+
+        $this->generatePdfReport();
     }
 
     /**
